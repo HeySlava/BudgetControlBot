@@ -16,6 +16,7 @@ from config import config
 from data import db_session
 from services import user_service
 from services import category_service
+from services import item_service
 
 
 logging.basicConfig(level=logging.INFO)
@@ -23,9 +24,11 @@ bot = Bot(token=config.token.get_secret_value())
 dp = Dispatcher()
 
 
-class NewCategory(StatesGroup):
+class newExpence(StatesGroup):
     choosing_category = State()
+    choosing_item = State()
     writing_category = State()
+    writing_item = State()
 
 
 @dp.message(Command('start'))
@@ -43,7 +46,7 @@ async def cmd_start(message: Message):
 
 
 @dp.message(Command('new'))
-async def new(message: Message, state: FSMContext):
+async def new(message: Message):
     session = db_session.create_session()
     categories = category_service.get_list(session)
     kb = keyboards.get_category_kb(categories)
@@ -59,10 +62,51 @@ async def add_new_category(callback: CallbackQuery, state: FSMContext):
     await callback.answer(
         show_alert=False,
     )
-    await state.set_state(NewCategory.writing_category)
+    await state.set_state(newExpence.writing_category)
 
 
-@dp.message(NewCategory.writing_category)
+@dp.callback_query(Text('new_item'))
+async def add_new_item(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer('Теперь напиши название нового товара')
+    await callback.answer(
+        show_alert=False,
+    )
+    await state.set_state(newExpence.writing_item)
+
+
+@dp.callback_query(Text(startswith='category'))
+async def callbacks_num(cb: CallbackQuery, state: FSMContext):
+    # TODO
+    category_name = cb.data.split(':')[-1]
+    await state.update_data(chosen_category=category_name)
+    await state.set_state(newExpence.choosing_item)
+    await cb.answer()
+
+    session = db_session.create_session()
+    items = item_service.get_list(session)
+    kb = keyboards.get_items_kb(items)
+
+    if cb.message:
+        await cb.message.edit_text(text='Выбери товар')
+        await cb.message.edit_reply_markup(reply_markup=kb)
+
+
+@dp.message(newExpence.writing_item)
+async def writing_new_item(m: Message, state: FSMContext):
+    session = db_session.create_session()
+    if m.text:
+        item_service.add_item(
+                item_name=m.text,
+                session=session,
+            )
+
+        await m.answer(
+                text=f'Добавлена новая позиция {m.text!r}\n\n/new',
+        )
+    await state.clear()
+
+
+@dp.message(newExpence.writing_category)
 async def writing_new_category(m: Message, state: FSMContext):
     session = db_session.create_session()
     if m.text:
