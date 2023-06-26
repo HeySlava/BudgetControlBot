@@ -162,7 +162,7 @@ async def echo(message: Message):
 async def main():
     Path('./db').mkdir(parents=True, exist_ok=True)
     db_session.global_init(
-            echo=True,
+            echo=False,
             conn_str='sqlite:///./db/v0_money.sqlite',
         )
 
