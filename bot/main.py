@@ -2,16 +2,17 @@ import asyncio
 import logging
 from pathlib import Path
 
-from aiogram import Router
 from aiogram import Bot
 from aiogram import Dispatcher
-from aiogram.types import BotCommand, Message
-from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
-from aiogram.fsm.state import StatesGroup
-from aiogram.fsm.state import State
-from aiogram.filters.command import Command
+from aiogram import Router
 from aiogram.filters import Text
+from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
+from aiogram.fsm.state import StatesGroup
+from aiogram.types import BotCommand
+from aiogram.types import CallbackQuery
+from aiogram.types import Message
 
 import keyboards
 from config import config
@@ -19,6 +20,7 @@ from data import db_session
 from services import user_service
 from services import item_service
 from services import expence_service
+from services import other
 from middleware import AuthentificationMiddleware
 
 
@@ -39,6 +41,7 @@ class newExpence(StatesGroup):
 commands = [
         BotCommand(command='start', description='Начать работать с ботом'),
         BotCommand(command='new', description='Команда для работы с расходами'),
+        BotCommand(command='report', description='Все расходы за все время'),
     ]
 
 
@@ -55,6 +58,21 @@ async def cmd_start(message: Message):
             )
 
     await message.answer('Для работы с ботом используй команду /new')
+
+
+@router.message(Command('report'))
+async def cmd_report(message: Message):
+    session = db_session.create_session()
+    rows = other.get_report(session)
+    txt = ''
+    for n, row in enumerate(rows):
+        txt += (
+                f'{row.User.first_name}  {row.Expence.item_name}  '
+                f'{row.Expence.price }  {row.Expence.cdate.strftime("%d.%m %H:%M")}\n'
+            )
+        if n % 50 == 0:
+            await message.answer(text=txt)
+            txt = ''
 
 
 @router.message(Command('new'))
