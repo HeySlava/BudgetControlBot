@@ -17,6 +17,7 @@ from data import db_session
 from services import user_service
 from services import category_service
 from services import item_service
+from services import expence_service
 
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,7 @@ dp = Dispatcher()
 class newExpence(StatesGroup):
     choosing_category = State()
     choosing_item = State()
+    writing_expence = State()
     writing_category = State()
     writing_item = State()
 
@@ -75,7 +77,7 @@ async def add_new_item(callback: CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query(Text(startswith='category'))
-async def callbacks_num(cb: CallbackQuery, state: FSMContext):
+async def select_category(cb: CallbackQuery, state: FSMContext):
     # TODO
     category_name = cb.data.split(':')[-1]
     await state.update_data(chosen_category=category_name)
@@ -83,7 +85,7 @@ async def callbacks_num(cb: CallbackQuery, state: FSMContext):
     await cb.answer()
 
     session = db_session.create_session()
-    items = item_service.get_list(session)
+    items = item_service.get_list(category_name=category_name, session=session)
     kb = keyboards.get_items_kb(items)
 
     if cb.message:
@@ -91,12 +93,53 @@ async def callbacks_num(cb: CallbackQuery, state: FSMContext):
         await cb.message.edit_reply_markup(reply_markup=kb)
 
 
+@dp.callback_query(Text(startswith='item'))
+async def select_item(cb: CallbackQuery, state: FSMContext):
+    # TODO
+    item_name = cb.data.split(':')[-1]
+    await state.update_data(chosen_item=item_name)
+    await state.set_state(newExpence.writing_expence)
+    await cb.answer()
+
+    if cb.message:
+        await cb.answer()
+        await cb.message.answer(
+                'Впиши свой расход, это должно быть число. '
+                'Это должно быть число, пока что никакой валидации нет'
+            )
+
+
+@dp.message(newExpence.writing_expence)
+async def add_expence(m: Message, state: FSMContext):
+    session = db_session.create_session()
+    user_data = await state.get_data()
+    item_name = user_data['chosen_item']
+    category_name = user_data['chosen_category']
+    expence_service.add_expence(
+            user_id=m.from_user.id,
+            category_name=category_name,
+            item_name=item_name,
+            price=m.text,
+            session=session,
+        )
+
+    await m.answer(
+            'Запись добавлена в расходы, для добавления '
+            'новой запиши напиши /new'
+        )
+
+    await state.clear()
+
+
 @dp.message(newExpence.writing_item)
 async def writing_new_item(m: Message, state: FSMContext):
     session = db_session.create_session()
+    user_data = await state.get_data()
+    category_name = user_data['chosen_category']
     if m.text:
         item_service.add_item(
                 item_name=m.text,
+                category_name=category_name,
                 session=session,
             )
 
@@ -141,7 +184,8 @@ async def echo(message: Message):
 async def main():
     db_session.global_init(
             echo=True,
-            conn_str='sqlite://',
+            conn_str='sqlite:///money.sqlite',
+            # conn_str='sqlite://',
         )
     dp.message.register(echo)
 

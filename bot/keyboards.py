@@ -1,4 +1,4 @@
-from typing import List
+from typing import Sequence
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -7,7 +7,7 @@ from data.models import Item
 
 
 def get_category_kb(
-        categories: List[Category]) -> InlineKeyboardMarkup:
+        categories: Sequence[Category]) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for c in categories:
         kb.button(text=c.name, callback_data=f'category:{c.name}')
@@ -18,11 +18,12 @@ def get_category_kb(
 
 
 def get_items_kb(
-        items: List[Item],
+        items: Sequence[Item],
 ) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for c in items:
         kb.button(text=c.name, callback_data=f'item:{c.name}')
 
     kb.button(text='Добавить тип', callback_data='new_item')
+    kb.adjust(1)
     return kb.as_markup()
