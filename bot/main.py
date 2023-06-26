@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from pathlib import Path
 
 from aiogram import Router
 from aiogram import Bot
@@ -112,6 +113,15 @@ async def add_expence(m: Message, state: FSMContext):
 
     await m.answer('Запись добавлена в расходы')
     await m.answer(text='Выбирай', reply_markup=kb)
+    for user_id in config.users:
+        if m.from_user and m.from_user.id != user_id:
+            await bot.send_message(
+                    chat_id=m.from_user.id,
+                    text=(
+                        f'Добавлен новый расход для категории {item_name} на сумму '
+                        f'{m.text} драм'
+                    )
+                )
 
     await state.clear()
 
@@ -150,10 +160,10 @@ async def echo(message: Message):
 
 
 async def main():
+    Path('./db').mkdir(parents=True, exist_ok=True)
     db_session.global_init(
             echo=True,
-            conn_str='sqlite:///v0_money.sqlite',
-            # conn_str='sqlite://',
+            conn_str='sqlite:///./db/v0_money.sqlite',
         )
 
     router.message.register(echo)
