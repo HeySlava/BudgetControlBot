@@ -116,7 +116,7 @@ async def add_expence(m: Message, state: FSMContext):
     for user_id in config.users:
         if m.from_user and m.from_user.id != user_id:
             await bot.send_message(
-                    chat_id=m.from_user.id,
+                    chat_id=user_id,
                     text=(
                         f'Добавлен новый расход для категории {item_name} на сумму '
                         f'{m.text} драм'
