@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from aiogram import Router
 from aiogram import Bot
 from aiogram import Dispatcher
 from aiogram.types import BotCommand, Message
@@ -17,10 +18,14 @@ from data import db_session
 from services import user_service
 from services import item_service
 from services import expence_service
+from middleware import AuthentificationMiddleware
 
+
+router = Router()
+router.message.outer_middleware(AuthentificationMiddleware())
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=config.token.get_secret_value())
+bot = Bot(token=config.token)
 dp = Dispatcher()
 
 
@@ -36,7 +41,7 @@ commands = [
     ]
 
 
-@dp.message(Command('start'))
+@router.message(Command('start'))
 async def cmd_start(message: Message):
     session = db_session.create_session()
     if message.from_user:
@@ -51,7 +56,7 @@ async def cmd_start(message: Message):
     await message.answer('Для работы с ботом используй команду /new')
 
 
-@dp.message(Command('new'))
+@router.message(Command('new'))
 async def new(message: Message):
     session = db_session.create_session()
     items = item_service.get_list(session)
@@ -62,7 +67,7 @@ async def new(message: Message):
         )
 
 
-@dp.callback_query(Text('new_item'))
+@router.callback_query(Text('new_item'))
 async def add_new_item(callback: CallbackQuery, state: FSMContext):
     if callback.message:
         await callback.message.answer('Теперь напиши название нового товара')
@@ -72,7 +77,7 @@ async def add_new_item(callback: CallbackQuery, state: FSMContext):
     await state.set_state(newExpence.writing_item)
 
 
-@dp.callback_query(Text(startswith='item'))
+@router.callback_query(Text(startswith='item'))
 async def select_item(cb: CallbackQuery, state: FSMContext):
     # TODO
     if cb.data:
@@ -89,7 +94,7 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
             )
 
 
-@dp.message(newExpence.writing_expence)
+@router.message(newExpence.writing_expence)
 async def add_expence(m: Message, state: FSMContext):
     session = db_session.create_session()
     user_data = await state.get_data()
@@ -111,7 +116,7 @@ async def add_expence(m: Message, state: FSMContext):
     await state.clear()
 
 
-@dp.message(newExpence.writing_item)
+@router.message(newExpence.writing_item)
 async def writing_new_item(m: Message, state: FSMContext):
     session = db_session.create_session()
     if m.text and m.from_user:
@@ -131,7 +136,7 @@ async def writing_new_item(m: Message, state: FSMContext):
     await state.clear()
 
 
-@dp.callback_query()
+@router.callback_query()
 async def echo_callback(callback: CallbackQuery):
     await callback.answer(
         text='Спасибо, что воспользовались ботом!',
@@ -151,10 +156,11 @@ async def main():
             # conn_str='sqlite://',
         )
 
-    dp.message.register(echo)
+    router.message.register(echo)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
+    dp.include_router(router)
     await dp.start_polling(bot)
 
 

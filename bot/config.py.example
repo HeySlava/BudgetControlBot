@@ -1,0 +1,11 @@
+from typing import List
+from dataclasses import dataclass
+from dataclasses import field
+
+@dataclass
+class Config:
+    token: str = '22:aa-F-6eNoKY65R-omFA'
+    users: List[int] = field(default_factory=lambda: [22, 33])
+
+
+config = Config()
