@@ -10,6 +10,5 @@ def get_report(
         session: Session,
 ) -> Sequence:
     stmt = select(Expence, User).join(User, User.id == Expence.user_id)
-    print(stmt)
     rows = session.execute(stmt)
     return rows

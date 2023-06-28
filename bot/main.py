@@ -64,15 +64,21 @@ async def cmd_start(message: Message):
 async def cmd_report(message: Message):
     session = db_session.create_session()
     rows = other.get_report(session)
-    txt = ''
-    for n, row in enumerate(rows):
-        txt += (
+    chunk_size = 50
+    report_lines = []
+    for row in rows:
+        txt = (
                 f'{row.User.first_name}  {row.Expence.item_name}  '
-                f'{row.Expence.price }  {row.Expence.cdate.strftime("%d.%m %H:%M")}\n'
+                f'{row.Expence.price }  {row.Expence.cdate.strftime("%d.%m %H:%M")}'
             )
-        if n % 50 == 0:
-            await message.answer(text=txt)
-            txt = ''
+        report_lines.append(txt)
+
+    chunks = [
+            report_lines[i:i+chunk_size]
+            for i in range(0, len(report_lines), chunk_size)
+        ]
+    for chunk in chunks:
+        await message.answer('\n'.join(chunk))
 
 
 @router.message(Command('new'))
