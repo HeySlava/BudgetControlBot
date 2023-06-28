@@ -80,7 +80,7 @@ async def cmd_start(message: Message):
                 session=session,
             )
 
-    await message.answer('Для работы с ботом используй команду /new')
+    await message.answer(HELP_MESSAGE)
 
 
 @router.message(Command('help'))
@@ -124,7 +124,7 @@ async def new(message: Message):
 @router.callback_query(Text('new_item'))
 async def add_new_item(callback: CallbackQuery, state: FSMContext):
     if callback.message:
-        await callback.message.answer('Теперь напиши название нового товара')
+        await callback.message.answer('Напиши новый вид расходов')
     await callback.answer(
         show_alert=False,
     )
@@ -167,15 +167,15 @@ async def add_expence(m: Message, state: FSMContext):
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
 
-    await m.answer('Запись добавлена в расходы')
+    await m.answer(f'Запись {m.text!r} добавлена с типом {item_name!r}')
     await m.answer(text='Выбирай', reply_markup=kb)
     for user_id in config.users:
         if m.from_user and m.from_user.id != user_id:
             await bot.send_message(
                     chat_id=user_id,
                     text=(
-                        f'Добавлен новый расход для категории {item_name} на сумму '
-                        f'{m.text} драм'
+                        'В твоей группе добавлен новый расход для категории '
+                        f'{item_name!r} на сумму {m.text!r} драм'
                     )
                 )
 
@@ -192,9 +192,7 @@ async def writing_new_item(m: Message, state: FSMContext):
                 session=session,
             )
 
-        await m.answer(
-                text=f'Добавлена новая позиция {m.text!r}',
-        )
+        await m.answer(text=f'Добавлена новая позиция {m.text!r}')
 
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
