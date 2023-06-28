@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import pytz
 from aiogram import Bot
 from aiogram import Dispatcher
 from aiogram import Router
@@ -24,6 +25,9 @@ from services import expence_service
 from services import other
 from middleware import AuthentificationMiddleware
 
+
+tz = pytz.timezone('Asia/Yerevan')
+# Convert timezone of datetime from UTC to local
 
 router = Router()
 router.message.outer_middleware(AuthentificationMiddleware())
@@ -96,11 +100,18 @@ async def cmd_report(message: Message):
     chunk_size = 50
     report_lines = []
     for row in rows:
+        to_yerevan_tz = (
+                row.Expence.cdate
+                .replace(tzinfo=pytz.UTC)
+                .astimezone(tz)
+                .strftime('%d.%m %H:%M')
+            )
         txt = (
                 f'{row.User.first_name}  {row.Expence.item_name}  '
-                f'{row.Expence.price }  {row.Expence.cdate.strftime("%d.%m %H:%M")}'
+                f'{row.Expence.price }  '
+                f'{to_yerevan_tz}'
             )
-        report_lines.append(txt)
+        report_lines.append(txt.strip())
 
     chunks = [
             report_lines[i:i+chunk_size]
@@ -168,6 +179,7 @@ async def add_expence(m: Message, state: FSMContext):
     kb = keyboards.get_items_kb(items)
 
     await m.answer(f'Запись {m.text!r} добавлена с типом {item_name!r}')
+
     await m.answer(text='Выбирай', reply_markup=kb)
     for user_id in config.users:
         if m.from_user and m.from_user.id != user_id:

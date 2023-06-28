@@ -41,5 +41,5 @@ class Expence(Base):
     price: Mapped[int] = mapped_column(Integer)
     cdate: Mapped[dt.datetime] = mapped_column(
             DateTime,
-            default=dt.datetime.now,
+            default=dt.datetime.utcnow,
         )
