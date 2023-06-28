@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from pathlib import Path
+from typing import Any
 
 from aiogram import Bot
 from aiogram import Dispatcher
@@ -43,6 +44,18 @@ commands = [
         BotCommand(command='new', description='Команда для работы с расходами'),
         BotCommand(command='report', description='Все расходы за все время'),
     ]
+
+
+RESPONSES = {
+        'write_expence': 'Впиши свой расход, это должно быть число.',
+    }
+
+
+def _is_number(user_response: Any) -> bool:
+    import re
+    pattern = re.compile(r'-?\d+(\.\d+)?\b')
+    match = pattern.match(user_response)
+    return True if match else False
 
 
 @router.message(Command('start'))
@@ -113,10 +126,7 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
 
     if cb.message:
         await cb.answer()
-        await cb.message.answer(
-                'Впиши свой расход, это должно быть число. '
-                'Это должно быть число, пока что никакой валидации нет'
-            )
+        await cb.message.answer(RESPONSES['write_expence'])
 
 
 @router.message(newExpence.writing_expence)
@@ -124,13 +134,19 @@ async def add_expence(m: Message, state: FSMContext):
     session = db_session.create_session()
     user_data = await state.get_data()
     item_name = user_data['chosen_item']
-    if m.text and m.from_user:
-        expence_service.add_expence(
-                user_id=m.from_user.id,
-                item_name=item_name,
-                price=m.text,
-                session=session,
-            )
+
+    if not m.text or not m.from_user:
+        return
+
+    if not _is_number(m.text):
+        return await m.answer(RESPONSES['write_expence'])
+
+    expence_service.add_expence(
+            user_id=m.from_user.id,
+            item_name=item_name,
+            price=m.text,
+            session=session,
+        )
 
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
