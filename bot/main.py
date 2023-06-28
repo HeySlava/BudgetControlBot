@@ -43,7 +43,17 @@ commands = [
         BotCommand(command='start', description='Начать работать с ботом'),
         BotCommand(command='new', description='Команда для работы с расходами'),
         BotCommand(command='report', description='Все расходы за все время'),
+        BotCommand(command='help', description='Показать подсказку'),
     ]
+
+
+HELP_MESSAGE = (
+        'Для работы с расходами - /new'
+        '\n'
+        'Для отображения истории - /report'
+        '\n'
+        'Увидеть это сообщение - /help'
+    )
 
 
 RESPONSES = {
@@ -71,6 +81,12 @@ async def cmd_start(message: Message):
             )
 
     await message.answer('Для работы с ботом используй команду /new')
+
+
+@router.message(Command('help'))
+async def cmd_help(message: Message):
+    if message.from_user:
+        await message.answer(HELP_MESSAGE)
 
 
 @router.message(Command('report'))
@@ -186,17 +202,10 @@ async def writing_new_item(m: Message, state: FSMContext):
     await state.clear()
 
 
-@router.callback_query()
-async def echo_callback(callback: CallbackQuery):
-    await callback.answer(
-        text='Спасибо, что воспользовались ботом!',
-        show_alert=False,
-    )
-
-
-async def echo(message: Message):
+@router.message()
+async def final_handler(message: Message):
     if message.text:
-        await message.answer(message.text)
+        await message.answer(HELP_MESSAGE)
 
 
 async def main():
@@ -205,8 +214,6 @@ async def main():
             echo=False,
             conn_str='sqlite:///./db/v0_money.sqlite',
         )
-
-    router.message.register(echo)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
