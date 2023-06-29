@@ -2,6 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Any
+from typing import List
 
 import pytz
 from aiogram import Bot
@@ -93,8 +94,7 @@ async def cmd_help(message: Message):
         await message.answer(HELP_MESSAGE)
 
 
-@router.message(Command('report'))
-async def cmd_report(message: Message):
+def _prepare_report() -> List[str]:
     session = db_session.create_session()
     rows = other.get_report(session)
     chunk_size = 50
@@ -117,8 +117,13 @@ async def cmd_report(message: Message):
             report_lines[i:i+chunk_size]
             for i in range(0, len(report_lines), chunk_size)
         ]
-    for chunk in chunks:
-        await message.answer('\n'.join(chunk))
+    return ['\n'.join(chunk) for chunk in chunks]
+
+
+@router.message(Command('report'))
+async def cmd_report(message: Message):
+    for msg in _prepare_report():
+        await message.answer(msg)
 
 
 @router.message(Command('new'))
