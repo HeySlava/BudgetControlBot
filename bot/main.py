@@ -16,8 +16,8 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 
 import keyboards
-import base
-import report
+from handlers import base
+from handlers import report
 from config import config
 from data import db_session
 from services import item_service
