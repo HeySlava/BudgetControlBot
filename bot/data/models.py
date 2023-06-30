@@ -1,12 +1,13 @@
 import datetime as dt
 
 from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 
 
 class Base(DeclarativeBase):
@@ -19,6 +20,8 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
+
+    expences: Mapped['Expence'] = relationship(back_populates='user')
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, name={self.first_name!r})'
@@ -43,3 +46,5 @@ class Expence(Base):
             DateTime,
             default=dt.datetime.utcnow,
         )
+
+    user: Mapped['User'] = relationship(back_populates='expences')

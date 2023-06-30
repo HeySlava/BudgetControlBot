@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from data import db_session
 from data.models import User
+from services import expence_service
 from services import other
 
 
@@ -17,26 +18,28 @@ tz = pytz.timezone('Asia/Yerevan')
 
 
 def _prepare_report(session: Session) -> List[str]:
-    rows = other.get_report(session)
-    chunk_size = 50
+    expences = expence_service.get_expences(session)
     report_lines = []
-    for row in rows:
+    for expence in expences:
         to_yerevan_tz = (
-                row.Expence.cdate
+                expence.cdate
                 .replace(tzinfo=pytz.UTC)
                 .astimezone(tz)
                 .strftime('%d.%m %H:%M')
             )
         txt = (
-                f'{row.User.first_name}  {row.Expence.item_name}  '
-                f'{row.Expence.price }  '
-                f'{to_yerevan_tz}'
+                f'{expence.user.first_name}  {expence.item_name}  '
+                f'{expence.price }  {to_yerevan_tz}'
             )
         report_lines.append(txt.strip())
 
+    return _chunkineze(report_lines, chunk_size=50)
+
+
+def _chunkineze(input_array: List[str], chunk_size: int = 50) -> List[str]:
     chunks = [
-            report_lines[i:i+chunk_size]
-            for i in range(0, len(report_lines), chunk_size)
+            input_array[i:i+chunk_size]
+            for i in range(0, len(input_array), chunk_size)
         ]
     return ['\n'.join(chunk) for chunk in chunks]
 
