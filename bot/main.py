@@ -16,10 +16,10 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 
 import keyboards
+import base
 import report
 from config import config
 from data import db_session
-from services import user_service
 from services import item_service
 from services import expence_service
 from middleware import AuthentificationMiddleware
@@ -47,15 +47,6 @@ commands = [
     ]
 
 
-HELP_MESSAGE = (
-        'Для работы с расходами - /new'
-        '\n'
-        'Для отображения истории - /report'
-        '\n'
-        'Увидеть это сообщение - /help'
-    )
-
-
 RESPONSES = {
         'write_expence': 'Впиши свой расход, это должно быть число.',
     }
@@ -66,27 +57,6 @@ def _is_number(user_response: Any) -> bool:
     pattern = re.compile(r'-?\d+(\.\d+)?\b')
     match = pattern.match(user_response)
     return True if match else False
-
-
-@router.message(Command('start'))
-async def cmd_start(message: Message):
-    session = db_session.create_session()
-    if message.from_user:
-        user_service.register_user(
-                id=message.from_user.id,
-                first_name=message.from_user.first_name,
-                last_name=message.from_user.last_name,
-                username=message.from_user.username,
-                session=session,
-            )
-
-    await message.answer(HELP_MESSAGE)
-
-
-@router.message(Command('help'))
-async def cmd_help(message: Message):
-    if message.from_user:
-        await message.answer(HELP_MESSAGE)
 
 
 @router.message(Command('new'))
@@ -180,12 +150,6 @@ async def writing_new_item(m: Message, state: FSMContext):
     await state.clear()
 
 
-@router.message()
-async def final_handler(message: Message):
-    if message.text:
-        await message.answer(HELP_MESSAGE)
-
-
 async def main():
     Path('./db').mkdir(parents=True, exist_ok=True)
     db_session.global_init(
@@ -197,6 +161,7 @@ async def main():
     await bot.set_my_commands(commands)
     dp.include_router(router)
     dp.include_router(report.router)
+    dp.include_router(base.router)
     await dp.start_polling(bot)
 
 
