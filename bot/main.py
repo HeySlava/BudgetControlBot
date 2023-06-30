@@ -2,9 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Any
-from typing import List
 
-import pytz
 from aiogram import Bot
 from aiogram import Dispatcher
 from aiogram import Router
@@ -18,17 +16,14 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 
 import keyboards
+import report
 from config import config
 from data import db_session
 from services import user_service
 from services import item_service
 from services import expence_service
-from services import other
 from middleware import AuthentificationMiddleware
 
-
-tz = pytz.timezone('Asia/Yerevan')
-# Convert timezone of datetime from UTC to local
 
 router = Router()
 router.message.outer_middleware(AuthentificationMiddleware())
@@ -92,38 +87,6 @@ async def cmd_start(message: Message):
 async def cmd_help(message: Message):
     if message.from_user:
         await message.answer(HELP_MESSAGE)
-
-
-def _prepare_report() -> List[str]:
-    session = db_session.create_session()
-    rows = other.get_report(session)
-    chunk_size = 50
-    report_lines = []
-    for row in rows:
-        to_yerevan_tz = (
-                row.Expence.cdate
-                .replace(tzinfo=pytz.UTC)
-                .astimezone(tz)
-                .strftime('%d.%m %H:%M')
-            )
-        txt = (
-                f'{row.User.first_name}  {row.Expence.item_name}  '
-                f'{row.Expence.price }  '
-                f'{to_yerevan_tz}'
-            )
-        report_lines.append(txt.strip())
-
-    chunks = [
-            report_lines[i:i+chunk_size]
-            for i in range(0, len(report_lines), chunk_size)
-        ]
-    return ['\n'.join(chunk) for chunk in chunks]
-
-
-@router.message(Command('report'))
-async def cmd_report(message: Message):
-    for msg in _prepare_report():
-        await message.answer(msg)
 
 
 @router.message(Command('new'))
@@ -233,6 +196,7 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
     dp.include_router(router)
+    dp.include_router(report.router)
     await dp.start_polling(bot)
 
 
