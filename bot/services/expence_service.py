@@ -33,6 +33,6 @@ def get_expences(
 def get_mean(
         session: Session,
 ) -> int:
-    stmt = select(Expence.price).group_by(func.date(Expence.cdate))
-    prices = session.scalars(stmt).all()
-    return int(sum(prices) / len(prices))
+    prices = session.scalars(select(Expence.price)).all()
+    days = session.scalars(select(func.date(Expence.cdate)).distinct()).all()
+    return int(sum(prices) / len(days))
