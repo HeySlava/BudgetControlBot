@@ -1,7 +1,10 @@
 from typing import Sequence
-from data.models import Expence
-from sqlalchemy.orm import Session
+
+from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from data.models import Expence
 
 
 def add_expence(
@@ -25,3 +28,11 @@ def get_expences(
         session: Session,
 ) -> Sequence[Expence]:
     return session.scalars(select(Expence)).all()
+
+
+def get_mean(
+        session: Session,
+) -> int:
+    stmt = select(Expence.price).group_by(func.date(Expence.cdate))
+    prices = session.scalars(stmt).all()
+    return int(sum(prices) / len(prices))

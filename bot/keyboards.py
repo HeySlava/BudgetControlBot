@@ -4,6 +4,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from data.models import Item
 
+REPORS_CALLBACKS = {
+        'Список всех расходов': 'report',
+        'Группировка по пользователю': 'by_user',
+        'Группировка по дню': 'by_day',
+        'Среднее в день': 'mean',
+    }
+
 
 def get_items_kb(
         items: Sequence[Item],
@@ -13,5 +20,14 @@ def get_items_kb(
         kb.button(text=c.name, callback_data=f'item:{c.name}')
 
     kb.button(text='Добавить тип', callback_data='new_item')
+    kb.adjust(1)
+    return kb.as_markup()
+
+
+def reports_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for title, callback in REPORS_CALLBACKS.items():
+        kb.button(text=title, callback_data=callback)
+
     kb.adjust(1)
     return kb.as_markup()

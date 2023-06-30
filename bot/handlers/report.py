@@ -4,9 +4,14 @@ import pytz
 from aiogram import Router
 from aiogram.filters.command import Command
 from aiogram.types import Message
+from aiogram.types import CallbackQuery
+from aiogram.filters import Text
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
+import keyboards
 from data import db_session
+from data.models import Expence
 from data.models import User
 from services import expence_service
 from services import other
@@ -46,18 +51,49 @@ def _chunkineze(input_array: List[str], chunk_size: int = 50) -> List[str]:
 
 @router.message(Command('report'))
 async def cmd_report(message: Message):
+    kb = keyboards.reports_kb()
+    await message.answer(
+            text='Выбери тип отчета',
+            reply_markup=kb,
+        )
+
+
+@router.callback_query(Text('report'))
+async def full_report(cb: CallbackQuery):
     session = db_session.create_session()
+    await cb.answer()
+    if not cb.message:
+        return
     for msg in _prepare_report(session):
-        await message.answer(msg)
+        await cb.message.answer(msg)
 
 
-@router.message(Command('test'))
-async def cmd_test(message: Message):
+@router.callback_query(Text('mean'))
+async def mean(cb: CallbackQuery):
+    session = db_session.create_session()
+    mean = expence_service.get_mean(session)
+    await cb.answer()
+    if cb.message:
+        await cb.message.answer(f'Средний расход {mean} драм')
+
+
+@router.callback_query(Text('by_user'))
+async def group_by_user(cb: CallbackQuery):
     session = db_session.create_session()
     rows = other.get_report_by(
             session,
-            # group_by=func.date(Expence.cdate),
             group_by=User.first_name,
         )
-    for row in rows:
-        await message.answer(row)
+    for msg in _chunkineze(rows, chunk_size=50):
+        await cb.message.answer(msg)
+
+
+@router.callback_query(Text('by_day'))
+async def group_by_day(cb: CallbackQuery):
+    session = db_session.create_session()
+    rows = other.get_report_by(
+            session,
+            group_by=func.date(Expence.cdate),
+        )
+    for msg in _chunkineze(rows, chunk_size=50):
+        await cb.message.answer(msg)
