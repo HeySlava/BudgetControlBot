@@ -2,8 +2,11 @@ from aiogram import Router
 from aiogram.filters.command import Command
 from aiogram.types import Message
 
+import keyboards
 from data import db_session
+from handlers._responses import RESPONSES
 from services import user_service
+from services import item_service
 
 
 router = Router()
@@ -36,6 +39,17 @@ async def cmd_start(message: Message):
 async def cmd_help(message: Message):
     if message.from_user:
         await message.answer(HELP_MESSAGE)
+
+
+@router.message(Command('new'))
+async def new(message: Message):
+    session = db_session.create_session()
+    items = item_service.get_list(session)
+    kb = keyboards.get_items_kb(items)
+    await message.answer(
+            text=RESPONSES['select_new_type'],
+            reply_markup=kb,
+        )
 
 
 @router.message()
