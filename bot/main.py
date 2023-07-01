@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -49,12 +50,19 @@ commands = [
 
 
 RESPONSES = {
-        'write_expence': 'Впиши свой расход, это должно быть число.',
+        'write_expence': 'Впиши свой расход, это должно быть число',
+        'new_record': (
+            'Пользователь {first_name} добавил новую запись для категории '
+            '{item_name!r} на сумму {text} AMD'
+        ),
+        'new_item': 'Расход {text!r} доступен в общем списке',
+        'choose': 'Выбирай',
+        'select_new_type': 'Выбери тип расхода',
+        'write_new_type_name': 'Напиши название для нового типа расходов',
     }
 
 
 def _is_number(user_response: Any) -> bool:
-    import re
     pattern = re.compile(r'-?\d+(\.\d+)?\b')
     match = pattern.match(user_response)
     return True if match else False
@@ -66,7 +74,7 @@ async def new(message: Message):
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
     await message.answer(
-            text='Выбери тип расхода',
+            text=RESPONSES['select_new_type'],
             reply_markup=kb,
         )
 
@@ -74,10 +82,8 @@ async def new(message: Message):
 @router.callback_query(Text('new_item'))
 async def add_new_item(callback: CallbackQuery, state: FSMContext):
     if callback.message:
-        await callback.message.answer('Напиши новый вид расходов')
-    await callback.answer(
-        show_alert=False,
-    )
+        await callback.message.answer(RESPONSES['write_new_type_name'])
+    await callback.answer(show_alert=False)
     await state.set_state(newExpence.writing_item)
 
 
@@ -114,21 +120,21 @@ async def add_expence(m: Message, state: FSMContext):
             session=session,
         )
 
-    items = item_service.get_list(session)
-    kb = keyboards.get_items_kb(items)
-
-    await m.answer(f'Запись {m.text!r} добавлена с типом {item_name!r}')
-
-    await m.answer(text='Выбирай', reply_markup=kb)
     for user_id in config.users:
-        if m.from_user and m.from_user.id != user_id:
+        if m.from_user:
+            record = RESPONSES['new_record'].format(
+                    text=m.text,
+                    item_name=item_name,
+                    first_name=m.from_user.first_name,
+                )
             await bot.send_message(
                     chat_id=user_id,
-                    text=(
-                        'В твоей группе добавлен новый расход для категории '
-                        f'{item_name!r} на сумму {m.text!r} драм'
-                    )
+                    text=record,
                 )
+
+    items = item_service.get_list(session)
+    kb = keyboards.get_items_kb(items)
+    await m.answer(text=RESPONSES['choose'], reply_markup=kb)
 
     await state.clear()
 
@@ -143,11 +149,11 @@ async def writing_new_item(m: Message, state: FSMContext):
                 session=session,
             )
 
-        await m.answer(text=f'Добавлена новая позиция {m.text!r}')
+        await m.answer(text=RESPONSES['new_item'].format(text=m.text))
 
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
-    await m.answer(text='Выбирай', reply_markup=kb)
+    await m.answer(text=RESPONSES['choose'], reply_markup=kb)
     await state.clear()
 
 
