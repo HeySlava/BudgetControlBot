@@ -1,34 +1,54 @@
+import logging
+from pathlib import Path
+
+from alembic.config import Config
+from alembic import command
 import sqlalchemy as sa
 from sqlalchemy import orm
 
 from data import models  # noqa: F401
-from data.models import Base
 
 
+logger = logging.getLogger(__name__)
 _factory = None
 
 
-def global_init(
+def make_alembic_config(
         conn_str: str,
+        alembic_config_path: Path,
+        migration_script_location: Path,
+) -> Config:
+
+    config = Config(
+            file_=alembic_config_path,
+        )
+
+    config.set_main_option('sqlalchemy.url', conn_str)
+    config.set_main_option('script_location', migration_script_location.as_posix())
+
+    return config
+
+
+def global_init(
+        config: Config,
         echo: bool,
 ) -> None:
     global _factory
 
     if _factory:
-        return
+        return None
 
-    if not conn_str or not conn_str.strip():
-        raise Exception('You have to specify conn_str, but your {!r:conn_str}')
+    conn_str = config.get_main_option('sqlalchemy.url')
+    if not conn_str:
+        raise Exception('You must specify conn_str')
 
-    engine = sa.create_engine(
-            conn_str,
-            echo=echo,
-            connect_args={'check_same_thread': False},
-        )
+    engine = sa.create_engine(conn_str, echo=echo)
+    _factory = orm.sessionmaker(engine, expire_on_commit=False)
 
-    Base.metadata.create_all(bind=engine)
-
-    _factory = orm.sessionmaker(bind=engine)
+    with engine.begin() as connection:
+        config.attributes['connection'] = connection
+        config.attributes['configure_logger'] = False
+        command.upgrade(config, 'head')
 
 
 def create_session():

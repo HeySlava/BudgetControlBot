@@ -16,13 +16,14 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 
 import keyboards
-from handlers import base
-from handlers import report
 from config import config
 from data import db_session
-from services import item_service
-from services import expence_service
+from data.db_session import make_alembic_config
+from handlers import base
+from handlers import report
 from middleware import AuthentificationMiddleware
+from services import expence_service
+from services import item_service
 
 
 router = Router()
@@ -152,9 +153,15 @@ async def writing_new_item(m: Message, state: FSMContext):
 
 async def main():
     Path('./db').mkdir(parents=True, exist_ok=True)
+    alembic_config = make_alembic_config(
+            conn_str=config.conn_str,
+            migration_script_location=config.migration_script_location,
+            alembic_config_path=config.alembic_config_path,
+        )
+
     db_session.global_init(
             echo=False,
-            conn_str='sqlite:///./db/v0_money.sqlite',
+            config=alembic_config,
         )
 
     await bot.delete_webhook(drop_pending_updates=True)
