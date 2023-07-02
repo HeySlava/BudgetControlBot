@@ -51,7 +51,7 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
 
 
 def _is_number(user_response: Any) -> bool:
-    pattern = re.compile(r'-?\d+(\.\d+)?\b')
+    pattern = re.compile(r'^-?\d+$')
     match = pattern.match(user_response)
     return True if match else False
 
