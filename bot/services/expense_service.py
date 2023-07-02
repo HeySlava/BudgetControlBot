@@ -5,37 +5,37 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from data.models import Expence
+from data.models import Expense
 
 
-def add_expence(
+def add_expense(
         user_id: int,
         item_name: str,
         price: str,
         session: Session,
         comment: Optional[str],
-) -> Expence:
+) -> Expense:
 
-    expence = Expence(
+    expense = Expense(
             user_id=user_id,
             item_name=item_name,
             price=price,
             comment=comment,
         )
-    session.add(expence)
+    session.add(expense)
     session.commit()
-    return expence
+    return expense
 
 
-def get_expences(
+def get_expenses(
         session: Session,
-) -> Sequence[Expence]:
-    return session.scalars(select(Expence)).all()
+) -> Sequence[Expense]:
+    return session.scalars(select(Expense)).all()
 
 
 def get_mean(
         session: Session,
 ) -> int:
-    prices = session.scalars(select(Expence.price)).all()
-    days = session.scalars(select(func.date(Expence.cdate)).distinct()).all()
+    prices = session.scalars(select(Expense.price)).all()
+    days = session.scalars(select(func.date(Expense.cdate)).distinct()).all()
     return int(sum(prices) / len(days))

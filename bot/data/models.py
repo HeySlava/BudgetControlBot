@@ -31,7 +31,7 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
 
-    expences: Mapped['Expence'] = relationship(back_populates='user')
+    expenses: Mapped['Expense'] = relationship(back_populates='user')
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, name={self.first_name!r})'
@@ -46,8 +46,8 @@ class Item(Base):
         return f'Item(name={self.name!r})'
 
 
-class Expence(Base):
-    __tablename__ = 'expences'
+class Expense(Base):
+    __tablename__ = 'expenses'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     item_name: Mapped[str] = mapped_column(ForeignKey('items.name'))
@@ -58,4 +58,4 @@ class Expence(Base):
             default=dt.datetime.utcnow,
         )
 
-    user: Mapped['User'] = relationship(back_populates='expences')
+    user: Mapped['User'] = relationship(back_populates='expenses')

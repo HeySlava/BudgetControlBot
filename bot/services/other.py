@@ -4,7 +4,7 @@ from sqlalchemy import func
 
 from typing import List
 
-from data.models import Expence
+from data.models import Expense
 from data.models import User
 
 
@@ -13,8 +13,8 @@ def get_report_by(
         group_by=None,
 ) -> List[str]:
     stmt = (
-            select(group_by, func.sum(Expence.price).label('total'))
-            .join(User, User.id == Expence.user_id)
+            select(group_by, func.sum(Expense.price).label('total'))
+            .join(User, User.id == Expense.user_id)
         )
     if group_by is not None:
         stmt = stmt.group_by(group_by)

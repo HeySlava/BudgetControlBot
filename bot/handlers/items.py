@@ -15,7 +15,7 @@ from mybot import bot
 from config import config
 from data import db_session
 from handlers._responses import RESPONSES
-from services import expence_service
+from services import expense_service
 from services import item_service
 
 
@@ -65,7 +65,7 @@ async def add_new_item(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(newExpence.writing_expence)
-async def add_expence(m: Message, state: FSMContext):
+async def add_expense(m: Message, state: FSMContext):
     session = db_session.create_session()
     user_data = await state.get_data()
     item_name = user_data['chosen_item']
@@ -78,7 +78,7 @@ async def add_expence(m: Message, state: FSMContext):
     if not _is_number(cost):
         return await m.answer(RESPONSES['write_expence'])
 
-    expence_service.add_expence(
+    expense_service.add_expense(
             user_id=m.from_user.id,
             item_name=item_name,
             price=m.text,
