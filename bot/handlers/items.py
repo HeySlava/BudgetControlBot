@@ -74,6 +74,7 @@ async def add_expense(m: Message, state: FSMContext):
         return
 
     cost, _, comment = m.text.partition('\n')
+    cost = cost.strip()
 
     if not _is_number(cost):
         return await m.answer(RESPONSES['write_expence'])
@@ -81,7 +82,7 @@ async def add_expense(m: Message, state: FSMContext):
     expense_service.add_expense(
             user_id=m.from_user.id,
             item_name=item_name,
-            price=m.text,
+            price=cost,
             comment=comment.strip() if comment else None,
             session=session,
         )
