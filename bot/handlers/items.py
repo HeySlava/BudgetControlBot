@@ -73,23 +73,30 @@ async def add_expence(m: Message, state: FSMContext):
     if not m.text or not m.from_user:
         return
 
-    if not _is_number(m.text):
+    cost, _, comment = m.text.partition('\n')
+
+    if not _is_number(cost):
         return await m.answer(RESPONSES['write_expence'])
 
     expence_service.add_expence(
             user_id=m.from_user.id,
             item_name=item_name,
             price=m.text,
+            comment=comment.strip() if comment else None,
             session=session,
         )
 
     for user_id in config.users:
         if m.from_user:
             record = RESPONSES['new_record'].format(
-                    text=m.text,
+                    text=cost,
                     item_name=item_name,
                     first_name=m.from_user.first_name,
                 )
+            if comment and comment.strip():
+                comment = comment.strip()
+                record += f' со следующими комментариями {comment!r}'
+
             await bot.send_message(
                     chat_id=user_id,
                     text=record,

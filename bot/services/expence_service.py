@@ -1,4 +1,5 @@
 from typing import Sequence
+from typing import Optional
 
 from sqlalchemy import func
 from sqlalchemy import select
@@ -12,12 +13,14 @@ def add_expence(
         item_name: str,
         price: str,
         session: Session,
+        comment: Optional[str],
 ) -> Expence:
 
     expence = Expence(
             user_id=user_id,
             item_name=item_name,
             price=price,
+            comment=comment,
         )
     session.add(expence)
     session.commit()

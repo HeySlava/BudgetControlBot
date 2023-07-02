@@ -52,6 +52,7 @@ class Expence(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     item_name: Mapped[str] = mapped_column(ForeignKey('items.name'))
     price: Mapped[int] = mapped_column(Integer)
+    comment: Mapped[str] = mapped_column(String, nullable=True)
     cdate: Mapped[dt.datetime] = mapped_column(
             DateTime,
             default=dt.datetime.utcnow,
