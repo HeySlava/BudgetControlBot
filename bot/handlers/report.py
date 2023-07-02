@@ -27,15 +27,10 @@ def _prepare_report(session: Session) -> List[str]:
     expenses = expense_service.get_expenses(session)
     report_lines = []
     for expense in expenses:
-        to_yerevan_tz = (
-                expense.cdate
-                .replace(tzinfo=pytz.UTC)
-                .astimezone(tz)
-                .strftime('%d.%m %H:%M')
-            )
+        cdate_tz_formatted = expense.cdate_tz.strftime('%d.%m %H:%M')
         txt = (
                 f'{expense.user.first_name}  {expense.item_name}  '
-                f'{expense.price }  {to_yerevan_tz}'
+                f'{expense.price }  {cdate_tz_formatted}'
             )
         if expense.comment:
             txt += f'  {expense.comment}'
@@ -97,7 +92,7 @@ async def group_by_day(cb: CallbackQuery):
     session = db_session.create_session()
     rows = other.get_report_by(
             session,
-            group_by=func.date(Expense.cdate),
+            group_by=func.date(Expense.cdate_tz),
         )
     for msg in _chunkineze(rows, chunk_size=50):
         if cb.message:

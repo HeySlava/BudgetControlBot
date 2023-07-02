@@ -57,5 +57,10 @@ class Expense(Base):
             DateTime,
             default=dt.datetime.utcnow,
         )
+    cdate_tz: Mapped[dt.datetime] = mapped_column(
+            DateTime,
+            default=dt.datetime.utcnow,
+            nullable=True,
+        )
 
     user: Mapped['User'] = relationship(back_populates='expenses')

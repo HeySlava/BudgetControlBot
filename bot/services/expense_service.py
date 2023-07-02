@@ -1,9 +1,12 @@
+import datetime as dt
 from typing import Sequence
 from typing import Optional
 
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+from config import config
 
 from data.models import Expense
 
@@ -21,6 +24,7 @@ def add_expense(
             item_name=item_name,
             price=price,
             comment=comment,
+            cdate_tz=dt.datetime.now(config.tz),
         )
     session.add(expense)
     session.commit()
@@ -37,5 +41,5 @@ def get_mean(
         session: Session,
 ) -> int:
     prices = session.scalars(select(Expense.price)).all()
-    days = session.scalars(select(func.date(Expense.cdate)).distinct()).all()
+    days = session.scalars(select(func.date(Expense.cdate_tz)).distinct()).all()
     return int(sum(prices) / len(days))
