@@ -37,6 +37,14 @@ def get_expenses(
     return session.scalars(select(Expense)).all()
 
 
+def get_expenses_by_date(
+        custom_date: dt.date,
+        session: Session,
+) -> Sequence[Expense]:
+    stmt = select(Expense).where(func.date(Expense.cdate_tz) == custom_date)
+    return session.scalars(stmt).all()
+
+
 def get_mean(
         session: Session,
 ) -> int:

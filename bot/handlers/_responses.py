@@ -13,4 +13,5 @@ RESPONSES = {
         'choose': 'Выбирай',
         'select_new_type': 'Выбери тип расхода',
         'write_new_type_name': 'Напиши название для нового типа расходов',
+        'custom_date': 'Введи дату в формате YYYY-MM-DD для получения отчета',
     }
