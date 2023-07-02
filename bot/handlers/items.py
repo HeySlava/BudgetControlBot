@@ -3,6 +3,7 @@ from typing import Any
 
 from aiogram import Router
 from aiogram.filters import Text
+from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.fsm.state import StatesGroup
@@ -25,6 +26,17 @@ class newExpence(StatesGroup):
     choosing_item = State()
     writing_expence = State()
     writing_item = State()
+
+
+@router.message(Command('new'))
+async def new(message: Message):
+    session = db_session.create_session()
+    items = item_service.get_list(session)
+    kb = keyboards.get_items_kb(items)
+    await message.answer(
+            text=RESPONSES['select_new_type'],
+            reply_markup=kb,
+        )
 
 
 @router.callback_query(Text(startswith='item'))
