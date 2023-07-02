@@ -13,6 +13,7 @@ import keyboards
 from data import db_session
 from data.models import Expense
 from data.models import User
+from data.models import Item
 from services import expense_service
 from services import other
 
@@ -36,6 +37,8 @@ def _prepare_report(session: Session) -> List[str]:
                 f'{expense.user.first_name}  {expense.item_name}  '
                 f'{expense.price }  {to_yerevan_tz}'
             )
+        if expense.comment:
+            txt += f'  {expense.comment}'
         report_lines.append(txt.strip())
 
     return _chunkineze(report_lines, chunk_size=50)
@@ -97,4 +100,17 @@ async def group_by_day(cb: CallbackQuery):
             group_by=func.date(Expense.cdate),
         )
     for msg in _chunkineze(rows, chunk_size=50):
-        await cb.message.answer(msg)
+        if cb.message:
+            await cb.message.answer(msg)
+
+
+@router.callback_query(Text('by_category'))
+async def group_by_category(cb: CallbackQuery):
+    session = db_session.create_session()
+    rows = other.get_report_by(
+            session,
+            group_by=Item.name,
+        )
+    for msg in _chunkineze(rows, chunk_size=50):
+        if cb.message:
+            await cb.message.answer(msg)
