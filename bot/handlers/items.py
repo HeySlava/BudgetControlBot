@@ -46,7 +46,7 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
         await cb.answer()
         item_name = cb.data.split(':')[-1]
         await state.update_data(chosen_item=item_name)
-        await cb.message.answer(RESPONSES['write_expence'])
+        await cb.message.answer(RESPONSES['write_expence'].format(item=item_name))
     await state.set_state(newExpence.writing_expence)
 
 
@@ -77,7 +77,7 @@ async def add_expense(m: Message, state: FSMContext):
     cost = cost.strip()
 
     if not _is_number(cost):
-        return await m.answer(RESPONSES['write_expence'])
+        return await m.answer(RESPONSES['write_expence'].format(item=item_name))
 
     expense_service.add_expense(
             user_id=m.from_user.id,
