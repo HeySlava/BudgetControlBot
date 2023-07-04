@@ -75,6 +75,19 @@ async def full_report(cb: CallbackQuery):
         await cb.message.answer(msg)
 
 
+@router.callback_query(Text('last_15'))
+async def report_last(cb: CallbackQuery):
+    session = db_session.create_session()
+    expenses = expense_service.get_expenses(session)
+    await cb.answer()
+    if not cb.message:
+        return
+    if len(expenses) > 15:
+        expenses = expenses[-15:]
+    for msg in _prepare_report(expenses):
+        await cb.message.answer(msg)
+
+
 @router.callback_query(Text('mean'))
 async def mean(cb: CallbackQuery):
     session = db_session.create_session()

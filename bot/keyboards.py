@@ -6,6 +6,7 @@ from data.models import Item
 
 REPORS_CALLBACKS = {
         'Список всех расходов': 'report',
+        'Последние 15 записей': 'last_15',
         'Список расходов за выбранный день': 'custom_day',
         'Группировка по дню': 'by_day',
         'Группировка по категории': 'by_category',
