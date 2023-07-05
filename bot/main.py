@@ -46,6 +46,7 @@ async def main():
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
+    await bot.send_message(text='Bot has started', chat_id=config.admin)
     dp.include_router(router)
     dp.include_router(report.router)
     dp.include_router(items.router)
