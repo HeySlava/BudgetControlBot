@@ -48,6 +48,10 @@ def get_expenses_by_date(
 def get_mean(
         session: Session,
 ) -> int:
-    prices = session.scalars(select(Expense.price)).all()
+    stmt = (
+            select(Expense.price)
+            .where(Expense.item_name.not_in(['ОБМЕННИК', 'РАЗОВЫЕ РАСХОДЫ']))
+        )
+    prices = session.scalars(stmt).all()
     days = session.scalars(select(func.date(Expense.cdate_tz)).distinct()).all()
     return int(sum(prices) / len(days))
