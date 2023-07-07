@@ -6,6 +6,7 @@ from data.models import Item
 
 REPORS_CALLBACKS = {
         'Список всех расходов': 'report',
+        'Расходы по выбранной категории': 'full_report_by_item',
         'Последние 15 записей': 'last_15',
         'Список расходов за выбранный день': 'custom_day',
         'Группировка по дню': 'by_day',
@@ -31,6 +32,17 @@ def reports_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for title, callback in REPORS_CALLBACKS.items():
         kb.button(text=title, callback_data=callback)
+
+    kb.adjust(1)
+    return kb.as_markup()
+
+
+def report_by_item(
+        items: Sequence[Item],
+) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for c in items:
+        kb.button(text=c.name, callback_data=f'report:{c.name}')
 
     kb.adjust(1)
     return kb.as_markup()

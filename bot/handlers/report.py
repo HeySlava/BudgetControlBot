@@ -19,6 +19,7 @@ from data.models import Item
 from data.models import User
 from handlers._responses import RESPONSES
 from services import expense_service
+from services import item_service
 from services import other
 from utils import try_datetime
 
@@ -163,3 +164,28 @@ async def report_by_day(m: Message, state: FSMContext):
     for msg in _prepare_report(expenses):
         await m.answer(msg)
     await state.clear()
+
+
+@router.callback_query(Text('full_report_by_item'))
+async def report_by_items_kb(cb: CallbackQuery):
+    session = db_session.create_session()
+    items = item_service.get_list(session)
+    kb = keyboards.report_by_item(items)
+    await cb.answer()
+    if cb.message:
+        await cb.message.answer(
+                text='Выбери категорию по которой хочешь получить отчет',
+                reply_markup=kb,
+            )
+
+
+@router.callback_query(Text(startswith='report'))
+async def full_report_by_item(cb: CallbackQuery):
+    session = db_session.create_session()
+    await cb.answer()
+    if cb.data and cb.message:
+        item_name = cb.data.split(':')[-1]
+        expenses = expense_service.get_expenses_by_item(item_name, session)
+
+        for msg in _prepare_report(expenses):
+            await cb.message.answer(msg)
