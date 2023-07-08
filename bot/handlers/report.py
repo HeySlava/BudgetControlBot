@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from typing import Sequence
 
 import pytz
@@ -13,6 +13,7 @@ from aiogram.types import Message
 from sqlalchemy import func
 
 import keyboards
+from config import config
 from data import db_session
 from data.models import Expense
 from data.models import Item
@@ -76,17 +77,24 @@ async def full_report(cb: CallbackQuery):
         await cb.message.answer(msg)
 
 
-@router.callback_query(Text('last_15'))
-async def report_last(cb: CallbackQuery):
+@router.callback_query(Text('last_n'))
+@router.message(Command('last'))
+async def report_last(update: Union[CallbackQuery, Message]):
     session = db_session.create_session()
     expenses = expense_service.get_expenses(session)
-    await cb.answer()
-    if not cb.message:
-        return
-    if len(expenses) > 15:
-        expenses = expenses[-15:]
+    if isinstance(update, CallbackQuery):
+        await update.answer()
+        m = update.message
+    else:
+        m = update
+
+    if not m:
+        return None
+
+    if len(expenses) > config.last:
+        expenses = expenses[-config.last:]
     for msg in _prepare_report(expenses):
-        await cb.message.answer(msg)
+        await m.answer(msg)
 
 
 @router.callback_query(Text('mean'))

@@ -3,11 +3,13 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from data.models import Item
+from config import config
+
 
 REPORS_CALLBACKS = {
         'Список всех расходов': 'report',
         'Расходы по выбранной категории': 'full_report_by_item',
-        'Последние 15 записей': 'last_15',
+        f'Последние {config.last} записей': 'last_n',
         'Список расходов за выбранный день': 'custom_day',
         'Группировка по дню': 'by_day',
         'Группировка по категории': 'by_category',

@@ -24,10 +24,13 @@ dp = Dispatcher()
 
 
 commands = [
-        BotCommand(command='start', description='Начать работать с ботом'),
         BotCommand(command='new', description='Команда для работы с расходами'),
         BotCommand(command='report', description='Отчетность по расходам'),
         BotCommand(command='help', description='Показать подсказку'),
+        BotCommand(
+            command='last',
+            description=f'Показать последние {config.last} расходов',
+        ),
     ]
 
 
