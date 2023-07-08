@@ -9,11 +9,11 @@ from aiogram.fsm.state import State
 from aiogram.fsm.state import StatesGroup
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
+from sqlalchemy.orm import Session
 
 import keyboards
 from mybot import bot
 from config import config
-from data import db_session
 from handlers._responses import RESPONSES
 from services import expense_service
 from services import item_service
@@ -29,8 +29,7 @@ class newExpence(StatesGroup):
 
 
 @router.message(Command('new'))
-async def new(message: Message):
-    session = db_session.create_session()
+async def new(message: Message, session: Session):
     items = item_service.get_list(session)
     kb = keyboards.get_items_kb(items)
     await message.answer(
@@ -65,8 +64,7 @@ async def add_new_item(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(newExpence.writing_expence)
-async def add_expense(m: Message, state: FSMContext):
-    session = db_session.create_session()
+async def add_expense(m: Message, state: FSMContext, session: Session):
     user_data = await state.get_data()
     item_name = user_data['chosen_item']
 
@@ -111,8 +109,7 @@ async def add_expense(m: Message, state: FSMContext):
 
 
 @router.message(newExpence.writing_item)
-async def writing_new_item(m: Message, state: FSMContext):
-    session = db_session.create_session()
+async def writing_new_item(m: Message, state: FSMContext, session: Session):
     if m.text and m.from_user:
         item_service.add_item(
                 item_name=m.text.upper(),

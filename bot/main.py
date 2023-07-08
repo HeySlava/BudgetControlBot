@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 
 from aiogram import Dispatcher
-from aiogram import Router
 from aiogram.types import BotCommand
 
 from mybot import bot
@@ -14,13 +13,13 @@ from handlers import base
 from handlers import items
 from handlers import report
 from middleware import AuthentificationMiddleware
+from middleware import DbSessionMiddleware
 
-
-router = Router()
-router.message.outer_middleware(AuthentificationMiddleware())
 
 logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
+dp.message.outer_middleware(AuthentificationMiddleware())
+dp.update.outer_middleware(DbSessionMiddleware())
 
 
 commands = [
@@ -50,7 +49,6 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
     await bot.send_message(text='Bot has started', chat_id=config.admin)
-    dp.include_router(router)
     dp.include_router(report.router)
     dp.include_router(items.router)
     dp.include_router(base.router)

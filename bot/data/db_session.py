@@ -60,6 +60,6 @@ def create_session():
     session: orm.Session = _factory()
 
     try:
-        return session
+        yield session
     finally:
         session.close()

@@ -1,8 +1,8 @@
 from aiogram import Router
 from aiogram.filters.command import Command
 from aiogram.types import Message
+from sqlalchemy.orm import Session
 
-from data import db_session
 from services import user_service
 
 
@@ -19,8 +19,7 @@ HELP_MESSAGE = (
 
 
 @router.message(Command('start'))
-async def cmd_start(message: Message):
-    session = db_session.create_session()
+async def cmd_start(message: Message, session: Session):
     if message.from_user:
         user_service.register_user(
                 id=message.from_user.id,

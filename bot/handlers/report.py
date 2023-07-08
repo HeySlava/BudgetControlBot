@@ -11,10 +11,10 @@ from aiogram.fsm.state import StatesGroup
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 import keyboards
 from config import config
-from data import db_session
 from data.models import Expense
 from data.models import Item
 from data.models import User
@@ -67,8 +67,7 @@ async def cmd_report(message: Message):
 
 
 @router.callback_query(Text('report'))
-async def full_report(cb: CallbackQuery):
-    session = db_session.create_session()
+async def full_report(cb: CallbackQuery, session: Session):
     expenses = expense_service.get_expenses(session)
     await cb.answer()
     if not cb.message:
@@ -79,8 +78,7 @@ async def full_report(cb: CallbackQuery):
 
 @router.callback_query(Text('last_n'))
 @router.message(Command('last'))
-async def report_last(update: Union[CallbackQuery, Message]):
-    session = db_session.create_session()
+async def report_last(update: Union[CallbackQuery, Message], session: Session):
     expenses = expense_service.get_expenses(session)
     if isinstance(update, CallbackQuery):
         await update.answer()
@@ -98,8 +96,7 @@ async def report_last(update: Union[CallbackQuery, Message]):
 
 
 @router.callback_query(Text('mean'))
-async def mean(cb: CallbackQuery):
-    session = db_session.create_session()
+async def mean(cb: CallbackQuery, session: Session):
     mean = expense_service.get_mean(session)
     await cb.answer()
     if cb.message:
@@ -107,8 +104,7 @@ async def mean(cb: CallbackQuery):
 
 
 @router.callback_query(Text('by_user'))
-async def group_by_user(cb: CallbackQuery):
-    session = db_session.create_session()
+async def group_by_user(cb: CallbackQuery, session: Session):
     await cb.answer()
     rows = other.get_report_by(
             session,
@@ -120,8 +116,7 @@ async def group_by_user(cb: CallbackQuery):
 
 
 @router.callback_query(Text('by_day'))
-async def group_by_day(cb: CallbackQuery):
-    session = db_session.create_session()
+async def group_by_day(cb: CallbackQuery, session: Session):
     await cb.answer()
     rows = other.get_report_by(
             session,
@@ -133,8 +128,7 @@ async def group_by_day(cb: CallbackQuery):
 
 
 @router.callback_query(Text('by_category'))
-async def group_by_category(cb: CallbackQuery):
-    session = db_session.create_session()
+async def group_by_category(cb: CallbackQuery, session: Session):
     await cb.answer()
     rows = other.get_report_by(
             session,
@@ -155,8 +149,7 @@ async def group_by_custom_day(cb: CallbackQuery, state: FSMContext):
 
 
 @router.message(Report.writing_date)
-async def report_by_day(m: Message, state: FSMContext):
-    session = db_session.create_session()
+async def report_by_day(m: Message, state: FSMContext, session: Session):
     if not m.text or not m.from_user:
         return
 
@@ -175,8 +168,7 @@ async def report_by_day(m: Message, state: FSMContext):
 
 
 @router.callback_query(Text('full_report_by_item'))
-async def report_by_items_kb(cb: CallbackQuery):
-    session = db_session.create_session()
+async def report_by_items_kb(cb: CallbackQuery, session: Session):
     items = item_service.get_list(session)
     kb = keyboards.report_by_item(items)
     await cb.answer()
@@ -188,8 +180,7 @@ async def report_by_items_kb(cb: CallbackQuery):
 
 
 @router.callback_query(Text(startswith='report'))
-async def full_report_by_item(cb: CallbackQuery):
-    session = db_session.create_session()
+async def full_report_by_item(cb: CallbackQuery, session: Session):
     await cb.answer()
     if cb.data and cb.message:
         item_name = cb.data.split(':')[-1]
