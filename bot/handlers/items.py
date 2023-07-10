@@ -13,10 +13,10 @@ from sqlalchemy.orm import Session
 
 import keyboards
 from mybot import bot
-from config import config
 from handlers._responses import RESPONSES
 from services import expense_service
 from services import item_service
+from services import user_service
 
 
 router = Router()
@@ -71,6 +71,13 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
     if not m.text or not m.from_user:
         return
 
+    user = user_service.get_user_by_id(
+            user_id=m.from_user.id,
+            session=session,
+        )
+
+    users_ids = [u.id for u in user.group.users] if user.group else [user.id]
+
     cost, _, comment = m.text.partition('\n')
     cost = cost.strip()
 
@@ -85,7 +92,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
             session=session,
         )
 
-    for user_id in config.users:
+    for user_id in users_ids:
         if m.from_user:
             record = RESPONSES['new_record'].format(
                     text=cost,

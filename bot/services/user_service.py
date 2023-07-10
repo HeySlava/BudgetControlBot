@@ -24,3 +24,11 @@ def register_user(
         session.add(user)
         session.commit()
     return user
+
+
+def get_user_by_id(
+        user_id: int,
+        session: Session,
+) -> User:
+    stmt = select(User).where(User.id == user_id)
+    return session.scalars(stmt).one()
