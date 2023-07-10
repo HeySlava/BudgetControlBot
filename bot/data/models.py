@@ -1,6 +1,7 @@
 import datetime as dt
 from typing import List
 
+from sqlalchemy import Boolean
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
@@ -79,3 +80,10 @@ class Group(Base):
         )
 
     users: Mapped[List['User']] = relationship(back_populates='group')
+
+
+class Release(Base):
+    __tablename__ = 'releases'
+    id: Mapped[str] = mapped_column(primary_key=True)
+    message: Mapped[str] = mapped_column(String, nullable=False)
+    is_broadcasted: Mapped[bool] = mapped_column(Boolean, default=False)
