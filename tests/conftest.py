@@ -7,6 +7,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import orm
 
 from data.models import Base
+from data.models import User
+from data.models import Group
 from data.db_session import make_alembic_config
 
 
@@ -42,3 +44,24 @@ def alembic_config(engine: Engine):
         )
     config.set_main_option('sqlalchemy.url', conn_str)
     return config
+
+
+@pytest.fixture(scope='session')
+def session():
+    with tempfile.TemporaryDirectory() as dir:
+        tmpfile = Path(dir) / 'money.db'
+        conn_str = f'sqlite:///{tmpfile}'
+        engine = sa.create_engine(conn_str)
+        Base.metadata.create_all(bind=engine)
+
+        _factory = orm.sessionmaker(engine, expire_on_commit=False)
+        session: orm.Session = _factory()
+        u1 = User(id=1, first_name='test1')
+        u2 = User(id=2, first_name='test2')
+        u3 = User(id=3, first_name='test3')
+        group = Group()
+        group.users.extend([u1, u2, u3])
+        session.add(group)
+        session.commit()
+
+        yield session

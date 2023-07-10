@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import List
 
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -32,7 +33,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, nullable=True)
     group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)
 
-    expenses: Mapped['Expense'] = relationship(back_populates='user')
+    expenses: Mapped[List['Expense']] = relationship(back_populates='user')
     group: Mapped['Group'] = relationship(back_populates='users')
 
     def __repr__(self) -> str:
@@ -77,4 +78,4 @@ class Group(Base):
             default=dt.datetime.utcnow,
         )
 
-    users: Mapped['User'] = relationship(back_populates='group')
+    users: Mapped[List['User']] = relationship(back_populates='group')
