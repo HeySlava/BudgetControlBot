@@ -30,8 +30,10 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)
 
     expenses: Mapped['Expense'] = relationship(back_populates='user')
+    group: Mapped['Group'] = relationship(back_populates='users')
 
     def __repr__(self) -> str:
         return f'User(id={self.id!r}, name={self.first_name!r})'
@@ -53,6 +55,7 @@ class Expense(Base):
     item_name: Mapped[str] = mapped_column(ForeignKey('items.name'))
     price: Mapped[int] = mapped_column(Integer)
     comment: Mapped[str] = mapped_column(String, nullable=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)
     cdate: Mapped[dt.datetime] = mapped_column(
             DateTime,
             default=dt.datetime.utcnow,
@@ -64,3 +67,14 @@ class Expense(Base):
         )
 
     user: Mapped['User'] = relationship(back_populates='expenses')
+
+
+class Group(Base):
+    __tablename__ = 'groups'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    cdate: Mapped[dt.datetime] = mapped_column(
+            DateTime,
+            default=dt.datetime.utcnow,
+        )
+
+    users: Mapped['User'] = relationship(back_populates='group')
