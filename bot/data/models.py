@@ -35,6 +35,7 @@ class User(Base):
     group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)
 
     expenses: Mapped[List['Expense']] = relationship(back_populates='user')
+    items: Mapped[List['Item']] = relationship(back_populates='user')
     group: Mapped['Group'] = relationship(back_populates='users')
 
     def __repr__(self) -> str:
@@ -45,6 +46,8 @@ class Item(Base):
     __tablename__ = 'items'
     name: Mapped[str] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+
+    user: Mapped['User'] = relationship(back_populates='items')
 
     def __repr__(self) -> str:
         return f'Item(name={self.name!r})'
