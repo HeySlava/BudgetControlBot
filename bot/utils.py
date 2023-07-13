@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -34,6 +35,36 @@ def try_datetime(string_dt: str) -> Optional[dt.date]:
         return dt.datetime.strptime(string_dt, '%Y-%m-%d').date()
     except ValueError:
         return None
+
+
+def custom_eval(equation: str) -> Optional[None]:
+    MATH_SIGNS = ('-', '+')
+    components = re.findall(r'\d+|\S', equation)
+    result = 0
+
+    first_value = components.pop(0)
+
+    if first_value in MATH_SIGNS and not components:
+        return None
+
+    try:
+        if first_value in MATH_SIGNS:
+            result += int(first_value + components.pop(0))
+        else:
+            result += int(first_value)
+    except ValueError:
+        return None
+
+    while components:
+        try:
+            sign = components.pop(0)
+            result += int(sign + components.pop(0))
+        except IndexError:
+            return None
+        except ValueError:
+            return None
+
+    return result
 
 
 async def on_startup(bot):

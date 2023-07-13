@@ -1,6 +1,3 @@
-import re
-from typing import Any
-
 from aiogram import Router
 from aiogram.filters import Text
 from aiogram.filters.command import Command
@@ -12,6 +9,7 @@ from aiogram.types import Message
 from sqlalchemy.orm import Session
 
 import keyboards
+import utils
 from mybot import bot
 from handlers._responses import RESPONSES
 from services import expense_service
@@ -49,12 +47,6 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
     await state.set_state(newExpence.writing_expence)
 
 
-def _is_number(user_response: Any) -> bool:
-    pattern = re.compile(r'^-?\d+$')
-    match = pattern.match(user_response)
-    return True if match else False
-
-
 @router.callback_query(Text('new_item'))
 async def add_new_item(callback: CallbackQuery, state: FSMContext):
     if callback.message:
@@ -78,10 +70,11 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
 
     users_ids = [u.id for u in user.group.users] if user.group else [user.id]
 
-    cost, _, comment = m.text.partition('\n')
-    cost = cost.strip()
+    cost_string, _, comment = m.text.partition('\n')
+    cost_string = cost_string.strip()
 
-    if not _is_number(cost):
+    cost = utils.custom_eval(cost_string)
+    if cost is None:
         return await m.answer(RESPONSES['write_expence'].format(item=item_name))
 
     expense_service.add_expense(
