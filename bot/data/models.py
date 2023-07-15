@@ -73,7 +73,7 @@ class Expense(Base):
     is_replenishment: Mapped[bool] = mapped_column(
             Boolean,
             default=False,
-            nullable=True,
+            nullable=False,
         )
 
     user: Mapped['User'] = relationship(back_populates='expenses')
