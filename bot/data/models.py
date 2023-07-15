@@ -33,11 +33,6 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
     group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)
-    balance: Mapped[int] = mapped_column(
-            Integer,
-            default=0,
-            nullable=False,
-        )
 
     expenses: Mapped[List['Expense']] = relationship(back_populates='user')
     items: Mapped[List['Item']] = relationship(back_populates='user')

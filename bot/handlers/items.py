@@ -86,12 +86,6 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
             commit=False,
         )
 
-    user_service.change_balance(
-            user=user,
-            session=session,
-            increment=cost,
-        )
-
     for user_id in users_ids:
         if m.from_user:
             record = RESPONSES['new_record'].format(

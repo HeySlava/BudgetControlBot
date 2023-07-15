@@ -32,16 +32,3 @@ def get_user_by_id(
 ) -> User:
     stmt = select(User).where(User.id == user_id)
     return session.scalars(stmt).one()
-
-
-def change_balance(
-        user: User,
-        increment: int,
-        session: Session,
-        commit: bool = True,
-) -> User:
-    user.balance += -1 * increment
-    session.add(user)
-    if commit:
-        session.commit()
-    return user
