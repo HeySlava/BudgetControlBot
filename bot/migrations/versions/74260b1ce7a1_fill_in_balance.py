@@ -6,11 +6,6 @@ Create Date: 2023-07-15 15:44:52.608824
 
 """
 from alembic import op
-import sqlalchemy as sa
-from sqlalchemy import orm
-
-from data.models import Expense
-from data.models import User
 
 
 # revision identifiers, used by Alembic.
@@ -21,24 +16,18 @@ depends_on = None
 
 
 def upgrade() -> None:
-    session = orm.Session(bind=op.get_bind())
-    subquery = (
-            sa.select(
-                Expense.user_id, sa.func.sum(Expense.price).label('total')
-            )
-            .group_by(Expense.user_id)
-            .subquery()
-        )
-
-    update_stmt = (
-            sa.update(User).values(balance=-subquery.c.total)
-            .where(User.id == subquery.c.user_id)
-        )
-    session.execute(update_stmt)
-    session.commit()
+    stmt = """
+    UPDATE users
+    SET balance=(-subquery.total)
+    FROM (
+        SELECT expenses.user_id AS user_id, sum(expenses.price) AS total
+        FROM expenses GROUP BY expenses.user_id
+    ) AS subquery
+    WHERE users.id = subquery.user_id
+    """
+    op.execute(stmt)
 
 
 def downgrade() -> None:
-    session = orm.Session(bind=op.get_bind())
-    session.execute(sa.update(User).values(balance=0))
-    session.commit()
+    stmt = 'UPDATE users SET balance=0'
+    op.execute(stmt)
