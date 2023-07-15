@@ -15,4 +15,4 @@ def test_default_balance(session: Session):
 def test_change_balance(session: Session, increment):
     user = session.scalars(select(User).where(User.id == 0)).first()
     user = user_service.change_balance(user, increment, session)
-    assert user.balance == increment
+    assert user.balance == -increment

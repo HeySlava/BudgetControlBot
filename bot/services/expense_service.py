@@ -16,6 +16,7 @@ def add_expense(
         price: str,
         session: Session,
         comment: Optional[str],
+        commit: bool = True,
 ) -> Expense:
 
     expense = Expense(
@@ -26,7 +27,8 @@ def add_expense(
             cdate_tz=dt.datetime.now(config.tz),
         )
     session.add(expense)
-    session.commit()
+    if commit:
+        session.commit()
     return expense
 
 
