@@ -70,6 +70,11 @@ class Expense(Base):
             default=dt.datetime.utcnow,
             nullable=True,
         )
+    is_replenishment: Mapped[bool] = mapped_column(
+            Boolean,
+            default=False,
+            nullable=True,
+        )
 
     user: Mapped['User'] = relationship(back_populates='expenses')
 
