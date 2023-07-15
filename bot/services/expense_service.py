@@ -2,6 +2,7 @@ import datetime as dt
 from typing import Sequence
 from typing import Optional
 
+import sqlalchemy as sa
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -59,7 +60,12 @@ def get_mean(
 ) -> int:
     stmt = (
             select(Expense.price)
-            .where(Expense.item_name.not_in(['ОБМЕННИК', 'РАЗОВЫЕ РАСХОДЫ']))
+            .where(
+                sa.and_(
+                    ~Expense.is_replenishment,
+                    Expense.item_name.not_in(['РАЗОВЫЕ РАСХОДЫ']),
+                )
+            )
         )
     prices = session.scalars(stmt).all()
     days = session.scalars(select(func.date(Expense.cdate_tz)).distinct()).all()
