@@ -48,7 +48,7 @@ def alembic_config(engine: Engine):
     return config
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def session():
     with tempfile.TemporaryDirectory() as dir:
         tmpfile = Path(dir) / 'money.db'
