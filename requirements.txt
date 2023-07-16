@@ -1,6 +1,5 @@
 aiogram>=3.*
 alembic
 pydantic
-python-dotenv
 pytz
 sqlalchemy>=2.*
