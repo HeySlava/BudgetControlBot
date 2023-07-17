@@ -83,7 +83,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
             price=cost,
             comment=comment.strip() if comment else None,
             session=session,
-            commit=False,
+            commit=True,
         )
 
     for user_id in users_ids:
