@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Dispatcher
 
+from handlers import balance
 from handlers import base
 from handlers import items
 from handlers import report
@@ -21,6 +22,7 @@ dp.update.outer_middleware(DbSessionMiddleware())
 async def main():
     dp.include_router(report.router)
     dp.include_router(items.router)
+    dp.include_router(balance.router)
     dp.include_router(base.router)
     await on_startup(bot)
     await dp.start_polling(bot)

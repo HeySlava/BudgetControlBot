@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 
 import keyboards
 import utils
-from mybot import bot
 from handlers._responses import RESPONSES
+from mybot import bot
 from services import expense_service
 from services import item_service
 from services import user_service
@@ -68,7 +68,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
             session=session,
         )
 
-    users_ids = [u.id for u in user.group.users] if user.group else [user.id]
+    users_ids = utils.get_ids_by_user(user)
 
     cost_string, _, comment = m.text.partition('\n')
     cost_string = cost_string.strip()

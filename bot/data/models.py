@@ -57,7 +57,7 @@ class Expense(Base):
     __tablename__ = 'expenses'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    item_name: Mapped[str] = mapped_column(ForeignKey('items.name'))
+    item_name: Mapped[str] = mapped_column(ForeignKey('items.name'), nullable=True)
     price: Mapped[int] = mapped_column(Integer)
     comment: Mapped[str] = mapped_column(String, nullable=True)
     group_id: Mapped[int] = mapped_column(ForeignKey('groups.id'), nullable=True)

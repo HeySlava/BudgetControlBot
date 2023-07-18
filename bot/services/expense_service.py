@@ -13,10 +13,11 @@ from data.models import Expense
 
 def add_expense(
         user_id: int,
-        item_name: str,
-        price: str,
+        price: int,
         session: Session,
-        comment: Optional[str],
+        is_replenishment: bool = False,
+        item_name: Optional[None] = None,
+        comment: Optional[str] = None,
         commit: bool = True,
 ) -> Expense:
 
@@ -25,6 +26,7 @@ def add_expense(
             item_name=item_name,
             price=price,
             comment=comment,
+            is_replenishment=is_replenishment,
             cdate_tz=dt.datetime.now(config.tz),
         )
     session.add(expense)
