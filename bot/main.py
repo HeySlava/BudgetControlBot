@@ -8,7 +8,6 @@ from handlers import base
 from handlers import currency
 from handlers import items
 from handlers import report
-from middleware import AuthentificationMiddleware
 from middleware import CurrencyMiddleware
 from middleware import DbSessionMiddleware
 from mybot import bot
@@ -17,7 +16,6 @@ from utils import on_startup
 
 logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
-dp.message.outer_middleware(AuthentificationMiddleware())
 dp.message.outer_middleware(CurrencyMiddleware())
 dp.update.outer_middleware(DbSessionMiddleware())
 
