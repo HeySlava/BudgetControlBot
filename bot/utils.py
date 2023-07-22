@@ -27,6 +27,8 @@ commands = [
             command='last',
             description=f'Показать последние {config.last} расходов',
         ),
+        BotCommand(command='balance', description='Работа с балансом'),
+        BotCommand(command='currency', description='Работа с валютой'),
     ]
 
 

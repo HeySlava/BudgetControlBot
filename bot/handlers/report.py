@@ -17,7 +17,6 @@ import keyboards
 from config import config
 from data.models import Expense
 from data.models import Item
-from data.models import User
 from handlers._responses import RESPONSES
 from services import expense_service
 from services import item_service
@@ -101,18 +100,6 @@ async def mean(cb: CallbackQuery, session: Session):
     await cb.answer()
     if cb.message:
         await cb.message.answer(f'Средний расход {mean} драм')
-
-
-@router.callback_query(Text('by_user'))
-async def group_by_user(cb: CallbackQuery, session: Session):
-    await cb.answer()
-    rows = other.get_report_by(
-            session,
-            group_by=User.first_name,
-        )
-    for msg in _chunkineze(rows, chunk_size=50):
-        if cb.message:
-            await cb.message.answer(msg)
 
 
 @router.callback_query(Text('by_day'))

@@ -14,6 +14,7 @@ from data.models import Expense
 def add_expense(
         user_id: int,
         price: int,
+        unit: str,
         session: Session,
         item_name: str,
         is_replenishment: bool = False,
@@ -25,6 +26,7 @@ def add_expense(
             user_id=user_id,
             item_name=item_name,
             price=price,
+            unit=unit,
             comment=comment,
             is_replenishment=is_replenishment,
             cdate_tz=dt.datetime.now(config.tz),

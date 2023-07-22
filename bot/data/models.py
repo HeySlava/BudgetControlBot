@@ -33,6 +33,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
+    currency: Mapped[str] = mapped_column(String, nullable=True)
 
     expenses: Mapped[List['Expense']] = relationship(back_populates='user')
     items: Mapped[List['Item']] = relationship(back_populates='user')
@@ -62,6 +63,7 @@ class Expense(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     item_name: Mapped[str] = mapped_column(ForeignKey('items.name'), nullable=True)
     price: Mapped[int] = mapped_column(Integer)
+    unit: Mapped[str] = mapped_column(String)
     comment: Mapped[str] = mapped_column(String, nullable=True)
     cdate: Mapped[dt.datetime] = mapped_column(
             DateTime,

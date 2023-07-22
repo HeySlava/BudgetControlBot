@@ -15,4 +15,6 @@ RESPONSES = {
         'select_new_type': 'Выбери тип расхода',
         'write_new_type_name': 'Напиши название для нового типа расходов',
         'custom_date': 'Введи дату в формате YYYY-MM-DD для получения отчета',
+        'current_balance': 'Твой баланс: {balance} {currency}',
+        'new_replanishment': 'Новое пополнение на {value} {currency}',
     }

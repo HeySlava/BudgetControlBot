@@ -5,9 +5,9 @@ from aiogram.filters.command import Command
 from aiogram.types import Message
 from sqlalchemy.orm import Session
 
-import utils
 from config import config
 from data.models import Expense
+from handlers._responses import RESPONSES
 from services import expense_service
 from services import user_service
 
@@ -24,14 +24,25 @@ async def balance(message: Message, session: Session, command: CommandObject):
         except ValueError:
             await message.answer('Неправильный аргумент')
         else:
+
+            user = user_service.get_user_by_id(
+                    user_id=message.chat.id,
+                    session=session,
+                )
+
             expense_service.add_expense(
                     user_id=message.chat.id,
                     is_replenishment=True,
                     item_name=config.replenishment_name,
                     price=value,
+                    unit=user.currency,
                     session=session,
                )
-            await message.answer(f'Новое пополнение на {value!r}')
+            text = RESPONSES['new_replanishment'].format(
+                    value=value,
+                    currency=user.currency,
+                )
+            await message.answer(text)
     else:
         user = user_service.get_user_by_id(message.chat.id, session)
         stmt = sa.select(
@@ -50,29 +61,10 @@ async def balance(message: Message, session: Session, command: CommandObject):
             ).where(Expense.user_id == user.id)
 
         balance = session.execute(stmt).scalar()
-        await message.answer(f'Your balance is {balance}')
+        text = 'Изменить баланс - /balance ЧИСЛО\n\n'
 
-
-@router.message(Command('gb'))
-@router.message(Command('group_balance'))
-async def group_balance(message: Message, session: Session):
-    user = user_service.get_user_by_id(message.chat.id, session)
-
-    user_ids = utils.get_ids_by_user(user)
-    stmt = sa.select(
-            sa.func.sum(
-                sa.case(
-                    (
-                        Expense.is_replenishment,
-                        Expense.price,
-                    ),
-                    (
-                        ~Expense.is_replenishment,
-                        -Expense.price,
-                    )
-                )
+        text += RESPONSES['current_balance'].format(
+                balance=balance if balance else 0,
+                currency=user.currency,
             )
-        ).where(Expense.user_id.in_(user_ids))
-
-    balance = session.execute(stmt).scalar()
-    await message.answer(f'Your group balance is {balance}')
+        await message.answer(text)
