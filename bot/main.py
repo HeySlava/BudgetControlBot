@@ -16,7 +16,7 @@ from utils import on_startup
 
 logging.basicConfig(level=logging.INFO)
 dp = Dispatcher()
-dp.message.outer_middleware(CurrencyMiddleware())
+dp.message.middleware(CurrencyMiddleware())
 dp.update.outer_middleware(DbSessionMiddleware())
 
 
