@@ -1,13 +1,12 @@
+import pytz
+
 from pathlib import Path
 from typing import List
-from dataclasses import dataclass
-from dataclasses import field
 
 
 @dataclass
 class Config:
     token: str = '22:aa-F-6eNoKY65R-omFA'
-    users: List[int] = field(default_factory=lambda: [22, 33])
     admin: int = 1245
     conn_str: str ='sqlite:///./db/v0_money.sqlite'
     migration_script_location: Path = Path(__file__).parent / 'migrations'

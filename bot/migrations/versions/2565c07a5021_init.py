@@ -1,8 +1,8 @@
 """Init
 
-Revision ID: b1fb2c7134e7
+Revision ID: 2565c07a5021
 Revises:
-Create Date: 2023-07-01 09:42:45.539453
+Create Date: 2023-07-22 16:35:59.607613
 
 """
 from alembic import op
@@ -10,13 +10,21 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b1fb2c7134e7'
+revision = '2565c07a5021'
 down_revision = None
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
+    op.create_table(
+            'releases',
+            sa.Column('id', sa.String(), nullable=False),
+            sa.Column('message', sa.String(), nullable=False),
+            sa.Column('is_broadcasted', sa.Boolean(), nullable=False),
+            sa.PrimaryKeyConstraint('id', name=op.f('pk_releases'))
+        )
+
     op.create_table(
             'users',
             sa.Column('id', sa.Integer(), nullable=False),
@@ -30,28 +38,33 @@ def upgrade() -> None:
             sa.Column('name', sa.String(), nullable=False),
             sa.Column('user_id', sa.Integer(), nullable=False),
             sa.ForeignKeyConstraint(
-                ['user_id'], ['users.id'],
-                name=op.f('fk_items_user_id_users')),
+                ['user_id'], ['users.id'], name=op.f('fk_items_user_id_users'),
+            ),
             sa.PrimaryKeyConstraint('name', name=op.f('pk_items'))
         )
+
     op.create_table(
-            'expences',
+            'expenses',
             sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
             sa.Column('user_id', sa.Integer(), nullable=False),
-            sa.Column('item_name', sa.String(), nullable=False),
+            sa.Column('item_name', sa.String(), nullable=True),
             sa.Column('price', sa.Integer(), nullable=False),
+            sa.Column('comment', sa.String(), nullable=True),
             sa.Column('cdate', sa.DateTime(), nullable=False),
+            sa.Column('cdate_tz', sa.DateTime(), nullable=True),
+            sa.Column('is_replenishment', sa.Boolean(), nullable=False),
             sa.ForeignKeyConstraint(
-                ['item_name'], ['items.name'],
-                name=op.f('fk_expences_item_name_items')),
+                ['item_name'], ['items.name'], name=op.f('fk_expenses_item_name_items'),
+            ),
             sa.ForeignKeyConstraint(
-                ['user_id'], ['users.id'],
-                name=op.f('fk_expences_user_id_users')),
-            sa.PrimaryKeyConstraint('id', name=op.f('pk_expences'))
+                ['user_id'], ['users.id'], name=op.f('fk_expenses_user_id_users'),
+            ),
+            sa.PrimaryKeyConstraint('id', name=op.f('pk_expenses'))
         )
 
 
 def downgrade() -> None:
-    op.drop_table('expences')
+    op.drop_table('expenses')
     op.drop_table('items')
     op.drop_table('users')
+    op.drop_table('releases')
