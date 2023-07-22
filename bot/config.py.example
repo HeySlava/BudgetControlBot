@@ -8,7 +8,7 @@ from typing import List
 class Config:
     token: str = '22:aa-F-6eNoKY65R-omFA'
     admin: int = 1245
-    conn_str: str ='sqlite:///./db/v0_money.sqlite'
+    conn_str: str ='sqlite:///./db/budget.sqlite'
     migration_script_location: Path = Path(__file__).parent / 'migrations'
     alembic_config_path: Path = Path(__file__).parent / 'alembic.ini'
     tz = pytz.timezone('Asia/Yerevan')
