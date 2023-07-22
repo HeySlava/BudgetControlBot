@@ -13,6 +13,7 @@ class Config:
     alembic_config_path: Path = Path(__file__).parent / 'alembic.ini'
     tz = pytz.timezone('Asia/Yerevan')
     last: int = 10
+    replenishment_name: str = '_replenishemnt'
 
 
 config = Config()

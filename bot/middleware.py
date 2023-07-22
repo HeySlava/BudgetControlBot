@@ -18,7 +18,7 @@ class AuthentificationMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any]
     ) -> Any:
-        if event.from_user and event.from_user.id in config.users:
+        if event.from_user and event.from_user.id in [config.admin]:
             return await handler(event, data)
 
         await event.answer(

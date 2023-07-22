@@ -68,7 +68,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
             session=session,
         )
 
-    users_ids = utils.get_ids_by_user(user)
+    users_ids = [user.id]
 
     cost_string, _, comment = m.text.partition('\n')
     cost_string = cost_string.strip()

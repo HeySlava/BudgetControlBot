@@ -15,8 +15,8 @@ def add_expense(
         user_id: int,
         price: int,
         session: Session,
+        item_name: str,
         is_replenishment: bool = False,
-        item_name: Optional[None] = None,
         comment: Optional[str] = None,
         commit: bool = True,
 ) -> Expense:
@@ -38,14 +38,19 @@ def add_expense(
 def get_expenses(
         session: Session,
 ) -> Sequence[Expense]:
-    return session.scalars(select(Expense)).all()
+    return session.scalars(select(Expense).where(~Expense.is_replenishment)).all()
 
 
 def get_expenses_by_date(
         custom_date: dt.date,
         session: Session,
 ) -> Sequence[Expense]:
-    stmt = select(Expense).where(func.date(Expense.cdate_tz) == custom_date)
+    stmt = select(Expense).where(
+            sa.and_(
+                ~Expense.is_replenishment,
+                func.date(Expense.cdate_tz) == custom_date,
+            )
+        )
     return session.scalars(stmt).all()
 
 
@@ -53,7 +58,12 @@ def get_expenses_by_item(
         item_name: str,
         session: Session,
 ) -> Sequence[Expense]:
-    stmt = select(Expense).where(Expense.item_name == item_name)
+    stmt = select(Expense).where(
+            sa.and_(
+                ~Expense.is_replenishment,
+                Expense.item_name == item_name,
+            )
+        )
     return session.scalars(stmt).all()
 
 
@@ -63,10 +73,7 @@ def get_mean(
     stmt = (
             select(Expense.price)
             .where(
-                sa.and_(
-                    ~Expense.is_replenishment,
-                    Expense.item_name.not_in(['РАЗОВЫЕ РАСХОДЫ']),
-                )
+                ~Expense.is_replenishment,
             )
         )
     prices = session.scalars(stmt).all()

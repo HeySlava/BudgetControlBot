@@ -1,5 +1,6 @@
 from typing import Sequence
 
+import sqlalchemy as sa
 from sqlalchemy import select
 from data.models import Item
 from sqlalchemy.orm import Session
@@ -18,7 +19,12 @@ def add_item(
         session: Session,
 ) -> Item:
 
-    stmt = select(Item).where(Item.name == item_name)
+    stmt = select(Item).where(
+            sa.and_(
+                Item.name == item_name,
+                Item.user_id == user_id,
+            )
+        )
     item = session.scalars(stmt).one_or_none()
     if not item:
         item = Item(

@@ -2,7 +2,6 @@ import datetime as dt
 import logging
 import re
 from pathlib import Path
-from typing import List
 from typing import Optional
 
 from aiogram.types import BotCommand
@@ -66,10 +65,6 @@ def custom_eval(equation: str) -> Optional[int]:
             return None
 
     return result
-
-
-def get_ids_by_user(user: User) -> List[int]:
-    return [u.id for u in user.group.users] if user.group else [user.id]
 
 
 async def on_startup(bot):

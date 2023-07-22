@@ -6,9 +6,10 @@ from aiogram.types import Message
 from sqlalchemy.orm import Session
 
 import utils
+from config import config
 from data.models import Expense
-from services import user_service
 from services import expense_service
+from services import user_service
 
 
 router = Router()
@@ -26,6 +27,7 @@ async def balance(message: Message, session: Session, command: CommandObject):
             expense_service.add_expense(
                     user_id=message.chat.id,
                     is_replenishment=True,
+                    item_name=config.replenishment_name,
                     price=value,
                     session=session,
                )

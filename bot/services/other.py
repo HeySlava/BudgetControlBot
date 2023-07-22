@@ -16,7 +16,7 @@ def get_report_by(
     stmt = (
         select(group_by, func.sum(Expense.price).label('total'))
         .join(User, User.id == Expense.user_id)
-        .join(Item, Item.name == Expense.item_name)  # Add this join condition
+        .join(Item, Item.name == Expense.item_name)
     )
 
     if group_by is not None:
