@@ -169,7 +169,7 @@ async def report_by_day(m: Message, state: FSMContext, session: Session):
 
 @router.callback_query(Text('full_report_by_item'))
 async def report_by_items_kb(cb: CallbackQuery, session: Session):
-    items = item_service.get_list(session)
+    items = item_service.get_list(cb.from_user.id, session)
     kb = keyboards.report_by_item(items)
     await cb.answer()
     if cb.message:
