@@ -10,6 +10,7 @@ from data.models import User
 
 
 def get_report_by(
+        user: User,
         session: Session,
         group_by=None,
 ) -> List[str]:
@@ -17,9 +18,10 @@ def get_report_by(
         select(group_by, func.sum(Expense.price).label('total'))
         .join(User, User.id == Expense.user_id)
         .join(Item, Item.name == Expense.item_name)
+        .where(User.id == user.id)
     )
 
     if group_by is not None:
         stmt = stmt.group_by(group_by)
         rows = session.execute(stmt)
-    return [f'{row.tuple()[0]}  |  {row.tuple()[1]} AMD' for row in rows]
+    return [f'{row.tuple()[0]}  |  {row.tuple()[1]} {user.currency}' for row in rows]

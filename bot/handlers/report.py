@@ -1,7 +1,6 @@
 from typing import List, Union
 from typing import Sequence
 
-import pytz
 from aiogram import Router
 from aiogram.filters import Text
 from aiogram.filters.command import Command
@@ -21,6 +20,7 @@ from handlers._responses import RESPONSES
 from services import expense_service
 from services import item_service
 from services import other
+from services import user_service
 from utils import try_datetime
 
 
@@ -30,8 +30,6 @@ class Report(StatesGroup):
 
 router = Router()
 
-tz = pytz.timezone('Asia/Yerevan')
-
 
 def _prepare_report(expenses: Sequence[Expense]) -> List[str]:
     report_lines = []
@@ -39,7 +37,7 @@ def _prepare_report(expenses: Sequence[Expense]) -> List[str]:
         cdate_tz_formatted = expense.cdate_tz.strftime('%d.%m %H:%M')
         txt = (
                 f'{expense.user.first_name}  {expense.item_name}  '
-                f'{expense.price }  {cdate_tz_formatted}'
+                f'{expense.price} {expense.unit}  {cdate_tz_formatted}'
             )
         if expense.comment:
             txt += f'  {expense.comment}'
@@ -105,8 +103,15 @@ async def report_last(update: Union[CallbackQuery, Message], session: Session):
 @router.callback_query(Text('by_day'))
 async def group_by_day(cb: CallbackQuery, session: Session):
     await cb.answer()
+
+    user = user_service.get_user_by_id(
+            user_id=cb.from_user.id,
+            session=session,
+        )
+
     rows = other.get_report_by(
-            session,
+            user=user,
+            session=session,
             group_by=func.date(Expense.cdate_tz),
         )
     for msg in _chunkineze(rows, chunk_size=50):
@@ -117,8 +122,15 @@ async def group_by_day(cb: CallbackQuery, session: Session):
 @router.callback_query(Text('by_category'))
 async def group_by_category(cb: CallbackQuery, session: Session):
     await cb.answer()
+
+    user = user_service.get_user_by_id(
+            user_id=cb.from_user.id,
+            session=session,
+        )
+
     rows = other.get_report_by(
-            session,
+            user=user,
+            session=session,
             group_by=Item.name,
         )
     for msg in _chunkineze(rows, chunk_size=50):

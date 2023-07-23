@@ -91,6 +91,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
         if m.from_user:
             record = RESPONSES['new_record'].format(
                     text=cost,
+                    currency=user.currency,
                     item_name=item_name,
                     first_name=m.from_user.first_name,
                 )

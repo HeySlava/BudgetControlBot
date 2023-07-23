@@ -8,7 +8,7 @@ RESPONSES = {
         ),
         'new_record': (
             'Пользователь {first_name} добавил новую запись для категории '
-            '{item_name!r} на сумму {text} AMD'
+            '{item_name!r} на сумму {text} {currency}'
         ),
         'new_item': 'Расход {text!r} доступен в общем списке',
         'choose': 'Выбирай',
