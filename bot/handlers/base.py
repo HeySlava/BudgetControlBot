@@ -26,6 +26,9 @@ HELP_MESSAGE = (
         '\n'
         '\n'
         'Увидеть это сообщение - /help'
+        '\n'
+        '\n'
+        'Обратная связь: @vyacheslav_kapitonov'
     )
 
 
