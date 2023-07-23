@@ -67,10 +67,14 @@ async def cmd_report(message: Message):
 
 @router.callback_query(Text('report'))
 async def full_report(cb: CallbackQuery, session: Session):
-    expenses = expense_service.get_expenses(session)
     await cb.answer()
     if not cb.message:
         return
+
+    expenses = expense_service.get_expenses(
+            user_id=cb.from_user.id,
+            session=session,
+        )
     for msg in _prepare_report(expenses):
         await cb.message.answer(msg)
 
@@ -78,7 +82,6 @@ async def full_report(cb: CallbackQuery, session: Session):
 @router.callback_query(Text('last_n'))
 @router.message(Command('last'))
 async def report_last(update: Union[CallbackQuery, Message], session: Session):
-    expenses = expense_service.get_expenses(session)
     if isinstance(update, CallbackQuery):
         await update.answer()
         m = update.message
@@ -88,18 +91,15 @@ async def report_last(update: Union[CallbackQuery, Message], session: Session):
     if not m:
         return None
 
+    expenses = expense_service.get_expenses(
+            user_id=m.chat.id,
+            session=session,
+        )
+
     if len(expenses) > config.last:
         expenses = expenses[-config.last:]
     for msg in _prepare_report(expenses):
         await m.answer(msg)
-
-
-@router.callback_query(Text('mean'))
-async def mean(cb: CallbackQuery, session: Session):
-    mean = expense_service.get_mean(session)
-    await cb.answer()
-    if cb.message:
-        await cb.message.answer(f'Средний расход {mean} драм')
 
 
 @router.callback_query(Text('by_day'))
@@ -145,6 +145,7 @@ async def report_by_day(m: Message, state: FSMContext, session: Session):
         return await m.answer(RESPONSES['custom_date'])
 
     expenses = expense_service.get_expenses_by_date(
+            user_id=m.from_user.id,
             custom_date=user_dt,
             session=session,
         )
@@ -171,7 +172,11 @@ async def full_report_by_item(cb: CallbackQuery, session: Session):
     await cb.answer()
     if cb.data and cb.message:
         item_name = cb.data.split(':')[-1]
-        expenses = expense_service.get_expenses_by_item(item_name, session)
+        expenses = expense_service.get_expenses_by_item(
+                item_name=item_name,
+                user_id=cb.from_user.id,
+                session=session,
+            )
 
         for msg in _prepare_report(expenses):
             await cb.message.answer(msg)

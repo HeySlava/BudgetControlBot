@@ -22,13 +22,13 @@ logger = logging.getLogger(__file__)
 commands = [
         BotCommand(command='new', description='Команда для работы с расходами'),
         BotCommand(command='report', description='Отчетность по расходам'),
-        BotCommand(command='help', description='Показать подсказку'),
+        BotCommand(command='balance', description='Работа с балансом'),
+        BotCommand(command='currency', description='Работа с валютой'),
         BotCommand(
             command='last',
             description=f'Показать последние {config.last} расходов',
         ),
-        BotCommand(command='balance', description='Работа с балансом'),
-        BotCommand(command='currency', description='Работа с валютой'),
+        BotCommand(command='help', description='Показать подсказку'),
     ]
 
 

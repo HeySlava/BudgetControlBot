@@ -38,17 +38,25 @@ def add_expense(
 
 
 def get_expenses(
+        user_id: int,
         session: Session,
 ) -> Sequence[Expense]:
-    return session.scalars(select(Expense).where(~Expense.is_replenishment)).all()
+    return session.scalars(
+            select(Expense).where(
+                ~Expense.is_replenishment,
+                Expense.user_id == user_id,
+            )
+        ).all()
 
 
 def get_expenses_by_date(
         custom_date: dt.date,
+        user_id: int,
         session: Session,
 ) -> Sequence[Expense]:
     stmt = select(Expense).where(
             sa.and_(
+                Expense.user_id == user_id,
                 ~Expense.is_replenishment,
                 func.date(Expense.cdate_tz) == custom_date,
             )
@@ -58,26 +66,14 @@ def get_expenses_by_date(
 
 def get_expenses_by_item(
         item_name: str,
+        user_id: int,
         session: Session,
 ) -> Sequence[Expense]:
     stmt = select(Expense).where(
             sa.and_(
+                Expense.user_id == user_id,
                 ~Expense.is_replenishment,
                 Expense.item_name == item_name,
             )
         )
     return session.scalars(stmt).all()
-
-
-def get_mean(
-        session: Session,
-) -> int:
-    stmt = (
-            select(Expense.price)
-            .where(
-                ~Expense.is_replenishment,
-            )
-        )
-    prices = session.scalars(stmt).all()
-    days = session.scalars(select(func.date(Expense.cdate_tz)).distinct()).all()
-    return int(sum(prices) / len(days))
