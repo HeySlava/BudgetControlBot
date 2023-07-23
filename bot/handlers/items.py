@@ -28,7 +28,12 @@ class newExpence(StatesGroup):
 
 @router.message(Command('new'))
 async def new(message: Message, session: Session):
-    items = item_service.get_list(session)
+    user = user_service.get_user_by_id(
+            user_id=message.chat.id,
+            session=session,
+        )
+
+    items = item_service.get_list(user.id, session)
     kb = keyboards.get_items_kb(items)
     await message.answer(
             text=RESPONSES['select_new_type'],
@@ -104,7 +109,7 @@ async def add_expense(m: Message, state: FSMContext, session: Session):
                     text=record,
                 )
 
-    items = item_service.get_list(session)
+    items = item_service.get_list(user.id, session)
     kb = keyboards.get_items_kb(items)
     await m.answer(text=RESPONSES['choose'], reply_markup=kb)
 
@@ -122,7 +127,12 @@ async def writing_new_item(m: Message, state: FSMContext, session: Session):
 
         await m.answer(text=RESPONSES['new_item'].format(text=m.text))
 
-    items = item_service.get_list(session)
+    user = user_service.get_user_by_id(
+            user_id=m.chat.id,
+            session=session,
+        )
+
+    items = item_service.get_list(user.id, session)
     kb = keyboards.get_items_kb(items)
     await m.answer(text=RESPONSES['choose'], reply_markup=kb)
     await state.clear()

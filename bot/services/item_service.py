@@ -7,9 +7,10 @@ from sqlalchemy.orm import Session
 
 
 def get_list(
+        user_id: int,
         session: Session,
 ) -> Sequence[Item]:
-    stmt = select(Item).order_by(Item.name)
+    stmt = select(Item).where(Item.user_id == user_id).order_by(Item.name)
     return session.scalars(stmt).all()
 
 
