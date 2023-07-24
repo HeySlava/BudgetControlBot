@@ -24,11 +24,17 @@ HELP_MESSAGE = (
         '\n'
         'Изменить баланс на число - /balance ЧИСЛО'
         '\n'
+        'Посмотреть историю пополнений - /balance history'
+        '\n'
         '\n'
         'Увидеть это сообщение - /help'
         '\n'
         '\n'
-        'Обратная связь: @vyacheslav_kapitonov'
+        'Обратная связь:'
+        '\n'
+        ' - @vyacheslav_kapitonov'
+        '\n'
+        ' - https://github.com/HeySlava/BudgetControlBot'
     )
 
 

@@ -2,6 +2,7 @@ import datetime as dt
 import logging
 import re
 from pathlib import Path
+from typing import List
 from typing import Optional
 
 from aiogram.types import BotCommand
@@ -106,3 +107,11 @@ async def on_startup(bot):
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands)
     await bot.send_message(text='Bot has started', chat_id=config.admin)
+
+
+def chunkineze(input_array: List[str], chunk_size: int = 50) -> List[str]:
+    chunks = [
+            input_array[i:i+chunk_size]
+            for i in range(0, len(input_array), chunk_size)
+        ]
+    return ['\n'.join(chunk) for chunk in chunks]

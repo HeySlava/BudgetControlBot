@@ -21,6 +21,7 @@ from services import expense_service
 from services import item_service
 from services import other
 from services import user_service
+from utils import chunkineze
 from utils import try_datetime
 
 
@@ -43,15 +44,7 @@ def _prepare_report(expenses: Sequence[Expense]) -> List[str]:
             txt += f'  {expense.comment}'
         report_lines.append(txt.strip())
 
-    return _chunkineze(report_lines, chunk_size=50)
-
-
-def _chunkineze(input_array: List[str], chunk_size: int = 50) -> List[str]:
-    chunks = [
-            input_array[i:i+chunk_size]
-            for i in range(0, len(input_array), chunk_size)
-        ]
-    return ['\n'.join(chunk) for chunk in chunks]
+    return chunkineze(report_lines, chunk_size=50)
 
 
 @router.message(Command('report'))
@@ -114,7 +107,7 @@ async def group_by_day(cb: CallbackQuery, session: Session):
             session=session,
             group_by=func.date(Expense.cdate_tz),
         )
-    for msg in _chunkineze(rows, chunk_size=50):
+    for msg in chunkineze(rows, chunk_size=50):
         if cb.message:
             await cb.message.answer(msg)
 
@@ -133,7 +126,7 @@ async def group_by_category(cb: CallbackQuery, session: Session):
             session=session,
             group_by=Item.name,
         )
-    for msg in _chunkineze(rows, chunk_size=50):
+    for msg in chunkineze(rows, chunk_size=50):
         if cb.message:
             await cb.message.answer(msg)
 
