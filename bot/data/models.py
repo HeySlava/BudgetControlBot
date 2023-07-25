@@ -7,7 +7,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import MetaData
 from sqlalchemy import String
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -44,12 +43,9 @@ class User(Base):
 
 class Item(Base):
     __tablename__ = 'items'
-    __table_args__ = (
-        UniqueConstraint('name', 'user_id'),
-    )
 
     name: Mapped[str] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), primary_key=True)
 
     user: Mapped['User'] = relationship(back_populates='items')
 
