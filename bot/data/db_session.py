@@ -42,7 +42,12 @@ def global_init(
     if not conn_str:
         raise Exception('You must specify conn_str')
 
-    engine = sa.create_engine(conn_str, echo=echo)
+    engine = sa.create_engine(
+            conn_str,
+            echo=echo,
+            pool_size=50,
+            max_overflow=70,
+        )
     _factory = orm.sessionmaker(engine, expire_on_commit=False)
 
     with engine.begin() as connection:
