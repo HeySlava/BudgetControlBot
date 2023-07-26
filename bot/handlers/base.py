@@ -20,7 +20,7 @@ HELP_MESSAGE = (
         'Изменить валюту - /currency ВАЛЮТА'
         '\n'
         '\n'
-        'Посмотреть баланс - /balance или /b'
+        'Посмотреть баланс - /balance. /b сокращение для команды /balance'
         '\n'
         'Изменить баланс на число - /balance ЧИСЛО'
         '\n'
@@ -48,16 +48,16 @@ async def cmd_start(message: Message, session: Session):
                 username=message.from_user.username,
                 session=session,
             )
-    await message.answer(HELP_MESSAGE)
+    await message.answer(HELP_MESSAGE, disable_web_page_preview=True)
 
 
 @router.message(Command('help'))
 async def cmd_help(message: Message):
     if message.from_user:
-        await message.answer(HELP_MESSAGE)
+        await message.answer(HELP_MESSAGE, disable_web_page_preview=True)
 
 
 @router.message()
 async def final_handler(message: Message):
     if message.text:
-        await message.answer(HELP_MESSAGE)
+        await message.answer(HELP_MESSAGE, disable_web_page_preview=True)

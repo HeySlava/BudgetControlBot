@@ -1,7 +1,6 @@
 from typing import List
 from typing import Sequence
 
-import sqlalchemy as sa
 from aiogram import Router
 from aiogram.filters import CommandObject
 from aiogram.filters.command import Command
@@ -22,6 +21,9 @@ router = Router()
 
 def _prepare_balance_history(replenishments: Sequence[Expense]) -> List[str]:
     report_lines = []
+    if not replenishments:
+        report_lines.append('Здесь пока пусто')
+
     for replenishment in replenishments:
         cdate_tz_formatted = replenishment.cdate_tz.strftime('%d.%m %H:%M')
         txt = (
@@ -40,26 +42,11 @@ def _prepare_balance_history(replenishments: Sequence[Expense]) -> List[str]:
 async def balance(message: Message, session: Session, command: CommandObject):
     if not command.args:
         user = user_service.get_user_by_id(message.chat.id, session)
-        stmt = sa.select(
-                sa.func.sum(
-                    sa.case(
-                        (
-                            Expense.is_replenishment,
-                            Expense.price,
-                        ),
-                        (
-                            ~Expense.is_replenishment,
-                            -Expense.price,
-                        )
-                    )
-                )
-            ).where(Expense.user_id == user.id)
-
-        balance = session.execute(stmt).scalar()
+        balance = balance_service.get_balance(user.id, session)
         text = 'Изменить баланс на ЧИСЛО - /balance ЧИСЛО\n\n'
 
         text += RESPONSES['current_balance'].format(
-                balance=balance if balance else 0,
+                balance=balance,
                 currency=user.currency,
             )
         return await message.answer(text)
@@ -71,7 +58,7 @@ async def balance(message: Message, session: Session, command: CommandObject):
             )
         for chunk in _prepare_balance_history(replenishments):
             await message.answer(chunk)
-            return
+        return
 
     value, _, comment = command.args.partition('\n')
     try:
