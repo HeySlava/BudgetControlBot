@@ -56,6 +56,21 @@ def global_init(
         command.upgrade(config, 'head')
 
 
+def count_function_calls(func):
+    cnt = 1
+
+    def wrapper(*args, **kwargs):
+        nonlocal cnt
+        func.cnt = cnt
+        cnt += 1
+        logger.info(f'Enter function {func.__name__!r} with number {func.cnt!r}')
+        result = func(*args, **kwargs)
+        logger.info(f'Exit function with {func.__name__!r} with number {func.cnt!r}')
+        return result
+    return wrapper
+
+
+@count_function_calls
 def create_session():
     global _factory
 
