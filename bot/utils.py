@@ -84,8 +84,12 @@ async def on_startup(bot):
             config=alembic_config,
         )
 
+    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.set_my_commands(commands)
+    await bot.send_message(text='Bot has started', chat_id=config.admin)
+
     session: Session = next(db_session.create_session())
-    stmt = select(Release).where(~Release.is_broadcasted)
+    stmt = select(Release).where(~Release.is_broadcasted).order_by(Release.id)
     release = session.scalars(stmt).first()
     if release:
         user_ids = session.scalars(select(User.id)).all()
@@ -103,10 +107,6 @@ async def on_startup(bot):
             release.is_broadcasted = True
             session.add(release)
             session.commit()
-
-    await bot.delete_webhook(drop_pending_updates=True)
-    await bot.set_my_commands(commands)
-    await bot.send_message(text='Bot has started', chat_id=config.admin)
 
 
 def chunkineze(input_array: List[str], chunk_size: int = 50) -> List[str]:
