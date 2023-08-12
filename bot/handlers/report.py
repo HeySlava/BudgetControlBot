@@ -9,17 +9,15 @@ from aiogram.fsm.state import State
 from aiogram.fsm.state import StatesGroup
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 import keyboards
 from config import config
 from data.models import Expense
-from data.models import Item
 from handlers._responses import RESPONSES
 from services import expense_service
 from services import item_service
-from services import other
+from services import report_service
 from services import user_service
 from utils import chunkineze
 from utils import try_datetime
@@ -102,10 +100,9 @@ async def group_by_day(cb: CallbackQuery, session: Session):
             session=session,
         )
 
-    rows = other.get_report_by(
+    rows = report_service.get_report_by_day(
             user=user,
             session=session,
-            group_by=func.date(Expense.cdate_tz),
         )
     for msg in chunkineze(rows, chunk_size=50):
         if cb.message:
@@ -121,10 +118,9 @@ async def group_by_category(cb: CallbackQuery, session: Session):
             session=session,
         )
 
-    rows = other.get_report_by(
+    rows = report_service.get_report_by_category(
             user=user,
             session=session,
-            group_by=Item.name,
         )
     for msg in chunkineze(rows, chunk_size=50):
         if cb.message:

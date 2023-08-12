@@ -65,8 +65,9 @@ def session():
         for i in range(1, 4):
             user = User(id=i, first_name=f'test{i}')
             for _ in range(1, 3):
-                expense = Expense(item_name=item_name, price=100, unit='unit')
-                user.expenses.append(expense)
+                for unit in 'unit1', 'unit2':
+                    expense = Expense(item_name=item_name, price=100, unit=unit)
+                    user.expenses.append(expense)
             session.add(user)
 
         session.commit()
