@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from sqlalchemy.orm import Session
 
@@ -39,7 +40,13 @@ HELP_MESSAGE = (
 
 
 @router.message(Command('start'))
-async def cmd_start(message: Message, session: Session):
+async def cmd_start(
+        message: Message,
+        session: Session,
+        state: FSMContext,
+):
+    await state.clear()
+
     if message.from_user:
         user_service.register_user(
                 id=message.from_user.id,
@@ -52,12 +59,10 @@ async def cmd_start(message: Message, session: Session):
 
 
 @router.message(Command('help'))
-async def cmd_help(message: Message):
+async def cmd_help(
+        message: Message,
+        state: FSMContext,
+):
+    await state.clear()
     if message.from_user:
-        await message.answer(HELP_MESSAGE, disable_web_page_preview=True)
-
-
-@router.message()
-async def final_handler(message: Message):
-    if message.text:
         await message.answer(HELP_MESSAGE, disable_web_page_preview=True)
