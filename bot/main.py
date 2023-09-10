@@ -6,6 +6,7 @@ from aiogram import Dispatcher
 from handlers import balance
 from handlers import base
 from handlers import currency
+from handlers import final_handler
 from handlers import items
 from handlers import report
 from middleware import CurrencyMiddleware
@@ -22,10 +23,11 @@ dp.update.outer_middleware(DbSessionMiddleware())
 
 async def main():
     dp.include_router(report.router)
-    dp.include_router(items.router)
     dp.include_router(balance.router)
     dp.include_router(currency.router)
     dp.include_router(base.router)
+    dp.include_router(items.router)
+    dp.include_router(final_handler.router)
     await on_startup(bot)
     await dp.start_polling(bot)
 
