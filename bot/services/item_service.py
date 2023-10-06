@@ -1,8 +1,8 @@
 from typing import Sequence
 
 import sqlalchemy as sa
-from sqlalchemy import select
 from data.models import Item
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 

@@ -1,6 +1,8 @@
-from typing import List, Union
+from typing import List
 from typing import Sequence
+from typing import Union
 
+import keyboards
 from aiogram import Router
 from aiogram.filters import Text
 from aiogram.filters.command import Command
@@ -9,9 +11,6 @@ from aiogram.fsm.state import State
 from aiogram.fsm.state import StatesGroup
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
-from sqlalchemy.orm import Session
-
-import keyboards
 from config import config
 from data.models import Expense
 from handlers._responses import RESPONSES
@@ -19,6 +18,7 @@ from services import expense_service
 from services import item_service
 from services import report_service
 from services import user_service
+from sqlalchemy.orm import Session
 from utils import chunkineze
 from utils import try_datetime
 

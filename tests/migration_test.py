@@ -1,9 +1,9 @@
 import pytest
-from alembic.command import downgrade, upgrade
+from alembic.command import downgrade
+from alembic.command import upgrade
 from alembic.config import Config
 from alembic.script import Script
 from alembic.script import ScriptDirectory
-
 from conftest import base_dir
 
 

@@ -1,16 +1,15 @@
+import tempfile
 from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
-import tempfile
-from sqlalchemy.engine import Engine
-from sqlalchemy import orm
-
+from data.db_session import make_alembic_config
 from data.models import Base
 from data.models import Expense
 from data.models import Item
 from data.models import User
-from data.db_session import make_alembic_config
+from sqlalchemy import orm
+from sqlalchemy.engine import Engine
 
 
 base_dir = Path(__file__).parent.parent / 'bot'

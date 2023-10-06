@@ -1,10 +1,9 @@
 from typing import Sequence
 
 import sqlalchemy as sa
+from data.models import Expense
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
-from data.models import Expense
 
 
 def get_balance_history(

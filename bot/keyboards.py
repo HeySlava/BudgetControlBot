@@ -1,9 +1,9 @@
 from typing import Sequence
+
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-from data.models import Item
 from config import config
+from data.models import Item
 
 
 REPORS_CALLBACKS = {

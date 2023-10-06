@@ -1,9 +1,8 @@
 import pytest
-from sqlalchemy import func
-from sqlalchemy import select
-
 from data.models import Item
 from services import item_service
+from sqlalchemy import func
+from sqlalchemy import select
 
 
 @pytest.mark.parametrize(

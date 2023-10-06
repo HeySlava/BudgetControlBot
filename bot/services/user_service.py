@@ -1,6 +1,7 @@
 from typing import Optional
-from sqlalchemy import select
+
 from data.models import User
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 

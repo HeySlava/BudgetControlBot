@@ -2,9 +2,8 @@ from aiogram import Router
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from sqlalchemy.orm import Session
-
 from services import user_service
+from sqlalchemy.orm import Session
 
 
 router = Router()
