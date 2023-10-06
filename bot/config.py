@@ -1,8 +1,8 @@
-import pytz
 import configparser
-
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+
+import pytz
 
 _CONFIG_INI_PATH = Path(__file__).absolute().parent.parent / 'config.ini'
 _default_token = '22:aa-F-6eNoKY65R-omFA'
