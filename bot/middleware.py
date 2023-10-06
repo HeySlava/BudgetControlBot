@@ -1,16 +1,15 @@
-from typing import Callable
-from typing import Dict
 from typing import Any
 from typing import Awaitable
+from typing import Callable
+from typing import Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
 from aiogram.types import Update
-from sqlalchemy.exc import NoResultFound
-
 from config import config
 from data import db_session
 from services import user_service
+from sqlalchemy.exc import NoResultFound
 
 
 class AuthentificationMiddleware(BaseMiddleware):

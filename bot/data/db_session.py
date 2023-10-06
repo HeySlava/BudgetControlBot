@@ -1,12 +1,11 @@
 import logging
 from pathlib import Path
 
-from alembic.config import Config
-from alembic import command
 import sqlalchemy as sa
-from sqlalchemy import orm
-
+from alembic import command
+from alembic.config import Config
 from data import models  # noqa: F401
+from sqlalchemy import orm
 
 
 logger = logging.getLogger(__name__)

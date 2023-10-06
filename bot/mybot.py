@@ -1,5 +1,4 @@
 from aiogram import Bot
-
 from config import config
 
 

@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 from aiogram import Dispatcher
-
 from handlers import balance
 from handlers import base
 from handlers import currency

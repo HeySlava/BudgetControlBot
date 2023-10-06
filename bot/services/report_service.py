@@ -1,11 +1,10 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy import func
-
 from typing import List
 
 from data.models import Expense
 from data.models import User
+from sqlalchemy import func
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 def get_report_by_day(

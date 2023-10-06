@@ -5,16 +5,15 @@ from pathlib import Path
 from typing import List
 from typing import Optional
 
-from aiogram.types import BotCommand
 from aiogram.exceptions import TelegramBadRequest
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
+from aiogram.types import BotCommand
 from config import config
 from data import db_session
+from data.db_session import make_alembic_config
 from data.models import Release
 from data.models import User
-from data.db_session import make_alembic_config
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 logger = logging.getLogger(__file__)

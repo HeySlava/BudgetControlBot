@@ -1,14 +1,13 @@
 import datetime as dt
-from typing import Sequence
 from typing import Optional
+from typing import Sequence
 
 import sqlalchemy as sa
+from config import config
+from data.models import Expense
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
-from config import config
-from data.models import Expense
 
 
 def add_expense(

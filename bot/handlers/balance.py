@@ -5,14 +5,13 @@ from aiogram import Router
 from aiogram.filters import CommandObject
 from aiogram.filters.command import Command
 from aiogram.types import Message
-from sqlalchemy.orm import Session
-
 from config import config
 from data.models import Expense
 from handlers._responses import RESPONSES
+from services import balance_service
 from services import expense_service
 from services import user_service
-from services import balance_service
+from sqlalchemy.orm import Session
 from utils import chunkineze
 
 
