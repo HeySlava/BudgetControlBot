@@ -1,3 +1,2 @@
-.env
 *.sqlite
-config.py
+config.ini
