@@ -17,4 +17,5 @@ RESPONSES = {
         'custom_date': 'Введи дату в формате YYYY-MM-DD для получения отчета',
         'current_balance': 'Твой баланс: {balance} {currency}',
         'new_replanishment': 'Новое пополнение на {value} {currency}',
+        'new_expence': 'Новый расход на сумму {value} {currency}',
     }
