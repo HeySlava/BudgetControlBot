@@ -70,7 +70,6 @@ def custom_eval(equation: str) -> Optional[int]:
 
 
 async def on_startup(bot):
-
     Path('./db').mkdir(parents=True, exist_ok=True)
     alembic_config = make_alembic_config(
             conn_str=config.conn_str,

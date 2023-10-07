@@ -1,0 +1,9 @@
+name: Add config example for tests
+
+runs:
+  using: composite
+  steps:
+  - name: Echo example config
+    shell: bash
+    run: |
+      cp example.config.ini config.ini
