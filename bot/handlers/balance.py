@@ -36,28 +36,59 @@ def _prepare_balance_history(replenishments: Sequence[Expense]) -> List[str]:
     return chunkineze(report_lines, chunk_size=50)
 
 
+async def _just_balance(
+        message: Message,
+        session: Session,
+) -> None:
+    user = user_service.get_user_by_id(message.chat.id, session)
+    balance = balance_service.get_balance(user.id, session)
+    text = 'Изменить баланс на ЧИСЛО - /balance ЧИСЛО\n\n'
+
+    text += RESPONSES['current_balance'].format(
+            balance=balance,
+            currency=user.currency,
+        )
+    return await message.answer(text)
+
+
+async def _balance_history(
+        message: Message,
+        session: Session,
+) -> None:
+
+    replenishments = balance_service.get_balance_history(
+            user_id=message.chat.id,
+            session=session,
+        )
+    for chunk in _prepare_balance_history(replenishments):
+        await message.answer(chunk)
+
+
+def _replanishment_msg(
+        value: int,
+        currency: str,
+) -> str:
+    if value >= 0:
+        text = RESPONSES['new_replanishment'].format(
+                value=value,
+                currency=currency,
+            )
+    else:
+        text = RESPONSES['new_expence'].format(
+                value=value,
+                currency=currency,
+            )
+    return text
+
+
 @router.message(Command('b'))
 @router.message(Command('balance'))
 async def balance(message: Message, session: Session, command: CommandObject):
     if not command.args:
-        user = user_service.get_user_by_id(message.chat.id, session)
-        balance = balance_service.get_balance(user.id, session)
-        text = 'Изменить баланс на ЧИСЛО - /balance ЧИСЛО\n\n'
-
-        text += RESPONSES['current_balance'].format(
-                balance=balance,
-                currency=user.currency,
-            )
-        return await message.answer(text)
+        await _just_balance(message=message, session=session)
 
     if command.args.strip() == 'history':
-        replenishments = balance_service.get_balance_history(
-                user_id=message.chat.id,
-                session=session,
-            )
-        for chunk in _prepare_balance_history(replenishments):
-            await message.answer(chunk)
-        return
+        return await _balance_history(message=message, session=session)
 
     value, _, comment = command.args.partition('\n')
     try:
@@ -79,7 +110,7 @@ async def balance(message: Message, session: Session, command: CommandObject):
                 unit=user.currency,
                 session=session,
            )
-        text = RESPONSES['new_replanishment'].format(
+        text = _replanishment_msg(
                 value=value,
                 currency=user.currency,
             )
