@@ -13,6 +13,7 @@ from services import expense_service
 from services import user_service
 from sqlalchemy.orm import Session
 from utils import chunkineze
+from utils import custom_eval
 
 
 router = Router()
@@ -42,9 +43,7 @@ async def _just_balance(
 ) -> None:
     user = user_service.get_user_by_id(message.chat.id, session)
     balance = balance_service.get_balance(user.id, session)
-    text = 'Изменить баланс на ЧИСЛО - /balance ЧИСЛО\n\n'
-
-    text += RESPONSES['current_balance'].format(
+    text = RESPONSES['current_balance'].format(
             balance=balance,
             currency=user.currency,
         )
@@ -81,37 +80,46 @@ def _replanishment_msg(
     return text
 
 
+async def _add_expence(
+    command: CommandObject,
+    session: Session,
+    message: Message,
+) -> None:
+    value_string, _, comment = command.args.partition('\n')
+    value = custom_eval(value_string)
+    if not value:
+        return await message.answer(
+                RESPONSES['wrong_value_argument'].format(value=value),
+            )
+
+    user = user_service.get_user_by_id(
+            user_id=message.chat.id,
+            session=session,
+        )
+
+    expense_service.add_expense(
+            user_id=message.chat.id,
+            is_replenishment=True,
+            item_name=config.replenishment_name,
+            price=value,
+            comment=comment.strip(),
+            unit=user.currency,
+            session=session,
+       )
+    text = _replanishment_msg(
+            value=value,
+            currency=user.currency,
+        )
+    await message.answer(text)
+
+
 @router.message(Command('b'))
 @router.message(Command('balance'))
 async def balance(message: Message, session: Session, command: CommandObject):
     if not command.args:
-        await _just_balance(message=message, session=session)
+        return await _just_balance(message=message, session=session)
 
     if command.args.strip() == 'history':
         return await _balance_history(message=message, session=session)
 
-    value, _, comment = command.args.partition('\n')
-    try:
-        value = int(value)
-    except ValueError:
-        await message.answer(f'Неправильный аргумент: {value!r}')
-    else:
-        user = user_service.get_user_by_id(
-                user_id=message.chat.id,
-                session=session,
-            )
-
-        expense_service.add_expense(
-                user_id=message.chat.id,
-                is_replenishment=True,
-                item_name=config.replenishment_name,
-                price=value,
-                comment=comment.strip(),
-                unit=user.currency,
-                session=session,
-           )
-        text = _replanishment_msg(
-                value=value,
-                currency=user.currency,
-            )
-        await message.answer(text)
+    return await _add_expence(message=message, session=session, command=command)
