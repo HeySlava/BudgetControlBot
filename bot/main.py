@@ -8,6 +8,7 @@ from handlers import currency
 from handlers import final_handler
 from handlers import items
 from handlers import report
+from handlers import rm
 from middleware import CurrencyMiddleware
 from middleware import DbSessionMiddleware
 from mybot import bot
@@ -26,6 +27,7 @@ async def main():
     dp.include_router(currency.router)
     dp.include_router(base.router)
     dp.include_router(items.router)
+    dp.include_router(rm.router)
     dp.include_router(final_handler.router)
     await on_startup(bot)
     await dp.start_polling(bot)
