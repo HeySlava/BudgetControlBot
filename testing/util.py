@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import sqlalchemy as sa
 from data.models import Expense
 from data.models import Item
 from data.models import User
@@ -31,3 +32,7 @@ def fill_in_db(
     if commit:
         session.commit()
     return session
+
+
+def get_random_user(session: orm.Session) -> User:
+    return session.scalars(sa.select(User)).first()
