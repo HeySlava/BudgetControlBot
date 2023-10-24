@@ -4,7 +4,8 @@ from alembic.command import upgrade
 from alembic.config import Config
 from alembic.script import Script
 from alembic.script import ScriptDirectory
-from conftest import base_dir
+
+from testing.util import base_dir
 
 
 def get_revisions():

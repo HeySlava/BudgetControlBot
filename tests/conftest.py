@@ -5,17 +5,13 @@ import pytest
 import sqlalchemy as sa
 from data.db_session import make_alembic_config
 from data.models import Base
-from data.models import Expense
-from data.models import Item
-from data.models import User
 from sqlalchemy import orm
 from sqlalchemy.engine import Engine
 
+from testing.util import base_dir
 
-base_dir = Path(__file__).parent.parent / 'bot'
 
-
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def engine():
     with tempfile.TemporaryDirectory() as dir:
         tmpfile = Path(dir) / 'pytest.db'
@@ -28,6 +24,8 @@ def engine():
 def db(engine):
     _factory = orm.sessionmaker(engine, expire_on_commit=False)
     session: orm.Session = _factory()
+    Base.metadata.create_all(bind=engine)
+
     yield session
     for table in reversed(Base.metadata.sorted_tables):
         session.execute(table.delete())
@@ -44,31 +42,3 @@ def alembic_config(engine: Engine):
         )
     config.set_main_option('sqlalchemy.url', conn_str)
     return config
-
-
-@pytest.fixture(scope='function')
-def session():
-    with tempfile.TemporaryDirectory() as dir:
-        tmpfile = Path(dir) / 'money.db'
-        conn_str = f'sqlite:///{tmpfile}'
-        engine = sa.create_engine(conn_str)
-        Base.metadata.create_all(bind=engine)
-
-        _factory = orm.sessionmaker(engine, expire_on_commit=False)
-        session: orm.Session = _factory()
-        item_name = 'Test'
-        user = User(id=0, first_name='test0')
-        item = Item(name=item_name)
-        user.items.append(item)
-
-        for i in range(1, 4):
-            user = User(id=i, first_name=f'test{i}')
-            for _ in range(1, 3):
-                for unit in 'unit1', 'unit2':
-                    expense = Expense(item_name=item_name, price=100, unit=unit)
-                    user.expenses.append(expense)
-            session.add(user)
-
-        session.commit()
-
-        yield session
