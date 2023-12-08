@@ -109,6 +109,24 @@ async def group_by_day(cb: CallbackQuery, session: Session):
             await cb.message.answer(msg)
 
 
+@router.callback_query(Text('by_month'))
+async def group_by_month(cb: CallbackQuery, session: Session):
+    await cb.answer()
+
+    user = user_service.get_user_by_id(
+            user_id=cb.from_user.id,
+            session=session,
+        )
+
+    rows = report_service.get_report_by_month(
+            user=user,
+            session=session,
+        )
+    for msg in chunkineze(rows, chunk_size=50):
+        if cb.message:
+            await cb.message.answer(msg)
+
+
 @router.callback_query(Text('by_category'))
 async def group_by_category(cb: CallbackQuery, session: Session):
     await cb.answer()
