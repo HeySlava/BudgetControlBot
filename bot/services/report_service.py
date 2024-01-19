@@ -75,7 +75,7 @@ def get_report_by_category(
             ~Expense.is_replenishment,
         )
         .group_by(Expense.user_id, by_month_year, Expense.item_name, Expense.unit)
-        .order_by(by_month_year, Expense.item_name)
+        .order_by(Expense.cdate_tz, Expense.item_name)
         .subquery()
     )
 
