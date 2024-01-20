@@ -1,8 +1,36 @@
 import pytest
+from handlers.rm import _parse_rm_command
+from handlers.rm import WrongRmCommand
 from services import rm_service
 
 from testing.util import fill_in_db
 from testing.util import get_random_user
+
+
+@pytest.mark.parametrize(
+    'args,command_type,category',
+    [
+        ('category slava', 'category', 'slava'),
+        ('category slava slava', 'category', 'slava slava'),
+        ('category SLAVA slava', 'category', 'SLAVA slava'),
+        ('category "slava"', 'category', 'slava'),
+        ("category 'slava'", 'category', 'slava'),
+    ]
+)
+def test_parse_rm_command(args, command_type, category):
+    assert _parse_rm_command(args) == (command_type, category)
+
+
+@pytest.mark.parametrize(
+    'args',
+    [
+        'cat slava',
+        '',
+    ]
+)
+def test_parse_rm_command_raise(args):
+    with pytest.raises(WrongRmCommand):
+        _parse_rm_command(args)
 
 
 def test_raise_wrong_category(db):

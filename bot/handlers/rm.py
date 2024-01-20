@@ -11,26 +11,30 @@ from sqlalchemy.orm import Session
 router = Router()
 
 
-def _parse_rm_command(args: str) -> Tuple[str, str] | None:
-    try:
-        command_type, category = args.split()
-    except ValueError:
-        return None
+class WrongRmCommand(ValueError):
+    pass
+
+
+def _parse_rm_command(args: str | None) -> Tuple[str, str]:
+    if not args:
+        raise WrongRmCommand
+    command_type, _, category = args.partition(' ')
+    category = category.strip("'").strip('"')
     if command_type != 'category':
-        return None
-    return command_type, category.upper()
+        raise WrongRmCommand
+    return command_type, category
 
 
 async def _delete_category(message: Message, session: Session, command: CommandObject):
-    parsed = _parse_rm_command(command.args)
-    if not parsed:
+    try:
+        _, category = _parse_rm_command(command.args)
+    except WrongRmCommand:
         return await message.answer(f'Неверная команда {command.args!r}')
-    _, category = parsed
 
     try:
         rm_service.rm_empty_category(
                 user_id=message.chat.id,
-                item_name=category,
+                item_name=category.upper(),
                 session=session,
             )
     except rm_service.WrongCategoryError:
