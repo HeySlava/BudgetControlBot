@@ -2,4 +2,4 @@ aiogram==3.0.0b7
 alembic
 pydantic
 pytz
-sqlalchemy>=2.*
+SQLAlchemy==2.0.30
