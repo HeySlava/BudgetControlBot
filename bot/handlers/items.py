@@ -1,7 +1,7 @@
 import keyboards
 import utils
+from aiogram import F
 from aiogram import Router
-from aiogram.filters import Text
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
@@ -40,9 +40,8 @@ async def new(message: Message, session: Session):
         )
 
 
-@router.callback_query(Text(startswith='item'))
+@router.callback_query(F.data.startswith('item'))
 async def select_item(cb: CallbackQuery, state: FSMContext):
-    # TODO
     if cb.data and cb.message:
         await cb.answer()
         item_name = cb.data.split(':')[-1]
@@ -51,7 +50,7 @@ async def select_item(cb: CallbackQuery, state: FSMContext):
     await state.set_state(newExpence.writing_expence)
 
 
-@router.callback_query(Text('new_item'))
+@router.callback_query(F.data == 'new_item')
 async def add_new_item(callback: CallbackQuery, state: FSMContext):
     if callback.message:
         await callback.message.answer(RESPONSES['write_new_type_name'])

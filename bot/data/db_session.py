@@ -71,7 +71,6 @@ def count_function_calls(func):
 
 @count_function_calls
 def create_session():
-    global _factory
 
     if not _factory:
         raise Exception('You must call global_init() before using this method')
