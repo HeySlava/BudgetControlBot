@@ -6,6 +6,7 @@ COPY config.ini config.ini
 COPY requirements.txt requirements.txt
 
 ENV PATH=/venv/bin:$PATH
+ENV PYTHONUNBUFFERED=1
 RUN :\
     && python -m venv /venv \
     && pip install --no-cache-dir pip -U wheel setuptools -r requirements.txt \
