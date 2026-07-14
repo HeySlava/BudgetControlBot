@@ -26,6 +26,10 @@ class Base(DeclarativeBase):
     metadata = meta
 
 
+def _utc_now() -> dt.datetime:
+    return dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
+
+
 class User(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -63,11 +67,11 @@ class Expense(Base):
     comment: Mapped[str] = mapped_column(String, nullable=True)
     cdate: Mapped[dt.datetime] = mapped_column(
             DateTime,
-            default=dt.datetime.utcnow,
+            default=_utc_now,
         )
     cdate_tz: Mapped[dt.datetime] = mapped_column(
             DateTime,
-            default=dt.datetime.utcnow,
+            default=_utc_now,
             nullable=True,
         )
     is_replenishment: Mapped[bool] = mapped_column(

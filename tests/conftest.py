@@ -17,7 +17,10 @@ def engine():
         tmpfile = Path(dir) / 'pytest.db'
         conn_str = f'sqlite:///{tmpfile}'
         engine = sa.create_engine(conn_str)
-        yield engine
+        try:
+            yield engine
+        finally:
+            engine.dispose()
 
 
 @pytest.fixture(scope='function')
@@ -26,10 +29,13 @@ def db(engine):
     session: orm.Session = _factory()
     Base.metadata.create_all(bind=engine)
 
-    yield session
-    for table in reversed(Base.metadata.sorted_tables):
-        session.execute(table.delete())
-    session.commit()
+    try:
+        yield session
+    finally:
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
+        session.close()
 
 
 @pytest.fixture(scope='function')
