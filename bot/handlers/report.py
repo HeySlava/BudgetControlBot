@@ -164,7 +164,7 @@ async def show_category_details(cb: CallbackQuery, session: Session):
             cdate_tz_formatted = (
                 e.cdate_tz.strftime('%d.%m %H:%M') if e.cdate_tz else ''
             )
-            line = f'{e.item_name}  {e.price} {e.unit}  {cdate_tz_formatted}'
+            line = f'{e.price} {e.unit}  {cdate_tz_formatted}'
             if e.comment:
                 line += f'  {e.comment}'
             report_lines.append(line)
