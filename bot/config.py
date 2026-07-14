@@ -29,7 +29,6 @@ class Config:
     migration_script_location: Path = Path(__file__).parent / 'migrations'
     alembic_config_path: Path = Path(__file__).parent / 'alembic.ini'
     tz = pytz.timezone('Asia/Yerevan')
-    last: int = 10
     replenishment_name: str = '_replenishemnt'
 
 

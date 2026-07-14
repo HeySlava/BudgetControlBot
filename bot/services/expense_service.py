@@ -2,10 +2,8 @@ import datetime as dt
 from typing import Optional
 from typing import Sequence
 
-import sqlalchemy as sa
 from config import config
 from data.models import Expense
-from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -46,33 +44,3 @@ def get_expenses(
                 Expense.user_id == user_id,
             )
         ).all()
-
-
-def get_expenses_by_date(
-        custom_date: dt.date,
-        user_id: int,
-        session: Session,
-) -> Sequence[Expense]:
-    stmt = select(Expense).where(
-            sa.and_(
-                Expense.user_id == user_id,
-                ~Expense.is_replenishment,
-                func.date(Expense.cdate_tz) == custom_date,
-            )
-        )
-    return session.scalars(stmt).all()
-
-
-def get_expenses_by_item(
-        item_name: str,
-        user_id: int,
-        session: Session,
-) -> Sequence[Expense]:
-    stmt = select(Expense).where(
-            sa.and_(
-                Expense.user_id == user_id,
-                ~Expense.is_replenishment,
-                Expense.item_name == item_name,
-            )
-        )
-    return session.scalars(stmt).all()
