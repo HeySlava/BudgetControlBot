@@ -1,4 +1,3 @@
-import datetime as dt
 import logging
 import re
 from pathlib import Path
@@ -24,19 +23,8 @@ commands = [
         BotCommand(command='report', description='Отчетность по расходам'),
         BotCommand(command='balance', description='Работа с балансом'),
         BotCommand(command='currency', description='Работа с валютой'),
-        BotCommand(
-            command='last',
-            description=f'Показать последние {config.last} расходов',
-        ),
         BotCommand(command='help', description='Показать подсказку'),
     ]
-
-
-def try_datetime(string_dt: str) -> Optional[dt.date]:
-    try:
-        return dt.datetime.strptime(string_dt, '%Y-%m-%d').date()
-    except ValueError:
-        return None
 
 
 def custom_eval(equation: str) -> Optional[int]:
